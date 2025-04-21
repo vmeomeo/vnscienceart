@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Anh = Bio + Inf + Art</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --main-color: #5E7CE2;
+      --bg-color: #ffffff;
+      --text-color: #0A369D;
+      --heading-color: #593C8F; /* purple for light mode */
+      --transition-speed: 0.5s;
+      --border-glow: 0 0 12px #FAA6FF, 0 0 24px #FAA6FF; /* pink glow in light mode */
+      --dna-color: rgba(89, 60, 143, 0.1);
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: var(--bg-color);
+      color: var(--main-color);
+      font-family: 'Orbitron', sans-serif;
+      text-align: center;
+      transition: background-color var(--transition-speed), color var(--transition-speed);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .dna-bg {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 200%;
+      pointer-events: none;
+      font-family: monospace;
+      font-size: 3vw; /* increased size and responsive */
+      color: var(--dna-color);
+      white-space: pre;
+      line-height: 1;
+      animation: scrollDna 30s linear infinite;
+      z-index: 0;
+    }
+
+    @keyframes scrollDna {
+      from { transform: translateY(0%); }
+      to { transform: translateY(-100%); }
+    }
+
+    @keyframes scrollDna {
+      from { transform: translateY(0%); }
+      to { transform: translateY(-50%); }
+    }
+
+    .container {
+      position: relative;
+      z-index: 1;
+      background: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(3px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 4px solid #FAA6FF; /* pink border in light mode */
+      border-radius: 20px;
+      margin: 2vw;
+      padding: 2rem;
+      box-shadow: var(--border-glow);
+      transition: border var(--transition-speed), box-shadow var(--transition-speed);
+    }
+
+    .container-wrapper {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      position: relative;
+      z-index: 1;
+    }
+
+    nav {
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      flex-wrap: wrap;
+      margin-bottom: 2rem;
+    }
+
+    nav a, nav button {
+      text-decoration: none;
+      color: var(--main-color);
+      font-size: 0.9rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transition: transform 0.3s ease;
+      background: none;
+      border: none;
+      cursor: pointer;
+    }
+
+    nav img {
+      width: 80px;
+      margin-bottom: 0.5rem;
+      opacity: 0.85;
+      transition: filter var(--transition-speed);
+    }
+
+    nav a:hover, nav button:hover {
+      text-shadow: 0 0 6px rgba(162, 183, 252, 0.6), 0 0 12px rgba(162, 183, 252, 0.4); 
+      /* (162, 183, 252, 0.4) */
+      transform: scale(1.1);
+    }
+
+    nav a:hover img, nav button:hover img {
+      filter: drop-shadow(0 0 4px rgba(162, 183, 252, 0.7)) drop-shadow(0 0 8px rgba(162, 183, 252, 0.5));
+    }
+
+    #mode-icon {
+      width: 40px;
+      height: 40px;
+      margin-bottom: 0.5rem;
+      transition: transform var(--transition-speed);
+    }
+
+    h1 {
+      font-size: 3rem;
+      color: var(--main-color);
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+      transition: color var(--transition-speed);
+    }
+
+    h2 {
+      font-size: 1.5rem;
+      margin-top: -0.5rem;
+      color: var(--text-color);
+      transition: color var(--transition-speed);
+    }
+
+    footer {
+      margin-top: 3rem;
+      font-size: 0.9rem;
+    }
+
+    .dark-mode {
+      --main-color: #00f7e5;
+      --bg-color: #171738;
+      --text-color: #ffffff;
+      --heading-color: #00f7e5;
+      --border-glow: 0 0 12px #00f7e5, 0 0 24px #00f7e5;
+      --dna-color: rgba(0, 255, 200, 0.08);
+    }
+
+    .dark-mode .container {
+      background: rgba(23, 23, 56, 0.2);
+      backdrop-filter: blur(3px);
+      -webkit-backdrop-filter: blur(8px);
+      border-color: #00f7e5;
+    }
+
+    .dark-mode nav a:hover, .dark-mode nav button:hover {
+      text-shadow: 0 0 8px rgba(0, 255, 255, 0.8), 0 0 16px rgba(0, 255, 255, 0.5);
+      transform: scale(1.1);
+    }
+
+    .dark-mode nav a:hover img, .dark-mode nav button:hover img {
+      filter: drop-shadow(0 0 4px rgba(0, 255, 255, 0.7)) drop-shadow(0 0 8px rgba(0, 255, 255, 0.5));
+    }
+
+  </style>
+</head>
+<body>
+  <div class="dna-bg" id="dna-bg"></div>
+    <div class="container-wrapper">
+      <div class="container">
+
+        <nav>
+          <a href="#about"><img class="icon" data-light="img/about-light-2.svg" data-dark="img/about-dark-2.svg" alt="About" />About</a>
+          <a href="#work"><img class="icon" data-light="img/work-light.svg" data-dark="img/work-dark.svg" alt="Work" />Work</a>
+          <a href="#archive"><img class="icon" data-light="skull-light.svg" data-dark="skull-dark.svg" alt="HW" />Archive</a>
+          <a href="#thoughts"><img class="icon" data-light="laptop-light.svg" data-dark="laptop-dark.svg" alt="Thoughts" />Thoughts</a>
+          <button id="mode-toggle">
+            <img id="mode-icon" class="icon" data-light="sun.svg" data-dark="moon.svg" alt="Toggle Theme">
+            Mode
+          </button>
+        </nav>
+
+        <header>
+          <h1>ANH VO</h1>
+          <h2>tech + (bio) science + art </h2>
+        </header>
+
+        <footer>
+          <p><img src="paperplane.svg" alt="Email" style="width: 30px; vertical-align: middle;" /> Email me</p>
+          <p>Currently looking for student job in Berlin! :D<br><small>(2nd semester FU Berlin Bioinformatics Master's student)</small></p>
+        </footer>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const toggle = document.getElementById('mode-toggle');
+    const icon = document.getElementById('mode-icon');
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const dnaBg = document.getElementById('dna-bg');
+
+    function updateIcons() {
+      const icons = document.querySelectorAll('img.icon');
+      const isDark = document.body.classList.contains('dark-mode');
+      icons.forEach(icon => {
+        const src = isDark ? icon.dataset.dark : icon.dataset.light;
+        if (src) icon.src = src;
+      });
+    }
+
+    function updateIcon() {
+      icon.alt = document.body.classList.contains('dark-mode') ? 'Switch to Light Mode' : 'Switch to Dark Mode';
+      updateIcons();
+    }
+
+    function generateDnaLines(rows = 100, cols = 80) {
+      const now = Date.now();
+      let result = '';
+      for (let i = 0; i < rows; i++) {
+        let line = '';
+        for (let j = 0; j < cols; j++) {
+          const seed = now + i * cols + j;
+          line += Math.round(Math.random()) //(seed % 7 === 0) ? '1' : '0';
+        }
+        result += line + '\n';
+      }
+      return result;
+    }
+
+    function updateDnaLoop() {
+      dnaBg.textContent = generateDnaLines();
+    }
+
+    // Set initial theme
+    if (prefersDark) {
+      document.body.classList.add('dark-mode');
+    }
+    updateIcon();
+
+    toggle.addEventListener('click', () => {
+      document.body.classList.toggle('dark-mode');
+      updateIcon();
+    });
+
+    updateDnaLoop();
+    setInterval(updateDnaLoop, 3000);
+
+  </script>
+</body>
+</html>
