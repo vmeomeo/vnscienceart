@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>About me – Anh</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@1,900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --main-color: #5E7CE2;
+      --bg-color: #ffffff;
+      --text-color: #0A369D;
+      --heading-color: #593C8F;
+      --transition-speed: 0.5s;
+      --border-glow: 0 0 12px #FAA6FF, 0 0 24px #FAA6FF;
+      --border-line: #FAA6FF;
+      --dna-color: rgba(89, 60, 143, 0.1);
+      --paragraph: #5a6076;
+      --big-title: #5e7ce2;
+      --quote-text: #B8B8F3;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: var(--bg-color);
+      color: var(--main-color);
+      font-family: 'Orbitron', sans-serif;
+      text-align: center;
+      transition: background-color var(--transition-speed), color var(--transition-speed);
+      min-height: 100vh;
+    }
+
+    .dark-mode {
+      --main-color: #00f7e5;
+      --bg-color: #171738;
+      --text-color: #ffffff;
+      --heading-color: #00f7e5;
+      --border-glow: 0 0 12px #00f7e5, 0 0 24px #00f7e5;
+      --border-line: #00f7e5;
+      --dna-color: rgba(0, 255, 200, 0.08);
+      --paragraph: #ffffff;
+      --big-title: #8EF9F3;
+      --quote-text: #ffffff;
+    }
+
+    .dna-bg {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 200%;
+      pointer-events: none;
+      font-family: monospace;
+      font-size: 3vw;
+      color: var(--dna-color);
+      white-space: pre;
+      line-height: 1;
+      animation: scrollDna 30s linear infinite;
+      z-index: 0;
+    }
+
+    @keyframes scrollDna {
+      from { transform: translateY(0%); }
+      to { transform: translateY(-50%); }
+    }
+
+    .container {
+      position: relative;
+      z-index: 1;
+      background: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(3px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 4px solid var(--border-line);
+      border-radius: 20px;
+      margin: 2vw;
+      padding: 2rem;
+      box-shadow: var(--border-glow);
+      transition: border var(--transition-speed), box-shadow var(--transition-speed);
+    }
+
+    nav {
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      flex-wrap: wrap;
+      margin-bottom: 2rem;
+      padding-top: 2rem;
+    }
+
+    nav a, nav button {
+      text-decoration: none;
+      color: var(--main-color);
+      font-size: 0.9rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background: none;
+      border: none;
+      cursor: pointer;
+      transition: transform 0.3s ease;
+    }
+
+    nav img {
+      width: 80px;
+      margin-bottom: 0.5rem;
+      opacity: 0.85;
+      transition: filter var(--transition-speed);
+    }
+
+    nav a:hover, nav button:hover {
+      text-shadow: 0 0 6px rgba(162, 183, 252, 0.6), 0 0 12px rgba(162, 183, 252, 0.4);
+      transform: scale(1.1);
+    }
+
+    .dark-mode nav a:hover, .dark-mode nav button:hover {
+      text-shadow: 0 0 8px rgba(0, 255, 255, 0.8), 0 0 16px rgba(0, 255, 255, 0.5);
+    }
+
+    nav a:hover img, nav button:hover img,
+    .dark-mode nav a:hover img, .dark-mode nav button:hover img {
+      filter: drop-shadow(0 0 4px rgba(162, 183, 252, 0.7)) drop-shadow(0 0 8px rgba(162, 183, 252, 0.5));
+    }
+
+    #mode-icon {
+      width: 80px;
+      height: 80px;
+      margin-bottom: 0.5rem;
+      transition: transform var(--transition-speed);
+    }
+
+    h5 {
+        font-family: 'Bebas Neue', sans-serif;
+        /* font-size: 12rem; */
+        font-size: clamp(2rem, 20vw, 12rem);
+        color: var(--main-color);
+        padding-top: clamp(2rem, 8vw, 7.5rem);
+        margin-top: 1rem;
+        margin-bottom: 0.5rem;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      color: var(--main-color);
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+      transition: color var(--transition-speed);
+    }
+
+    h2 {
+      font-size: 1.3rem;
+      color: var(--text-color);
+    }
+
+    h3 {
+        color: var(--text-color);
+    }
+
+    p {
+        font-size: 1rem;
+        color: var(--paragraph);
+        padding-bottom: 2rem;
+    }
+
+    .big-quote {
+      font-family: 'Lato', sans-serif;
+      font-weight: 900;
+      font-style: italic;
+      font-size: clamp(1rem, 10vw, 3rem);
+      /* color: var(--big-title); */
+      color: var(--quote-text);
+      padding-bottom: clamp(3rem, 20vw, 10rem);
+      padding-left: clamp(1rem, 8vw, 3rem);
+      padding-right: clamp(1rem, 8vw, 5rem);
+    }
+
+    button {
+        font-family: 'Orbitron', sans-serif;
+    }
+
+    .assignments {
+      /* max-width: 800px; */
+      max-width: clamp(2rem, 80vw, 100rem);
+      margin: 0 auto;
+    }
+
+    .course-box {
+      background: rgba(255, 255, 255, 0.8);
+      border: 2px dashed var(--main-color);
+      padding: 1rem;
+      margin: 1rem;
+      border-radius: 12px;
+      text-align: center;
+      transition: border var(--transition-speed), background var(--transition-speed);
+    }
+
+    .dark-mode .course-box {
+      background: rgba(23, 23, 56, 0.3);
+    }
+
+    .explode {
+      animation: explodeOut 1s ease-in forwards;
+    }
+
+    @keyframes explodeOut {
+      0% { transform: scale(1); opacity: 1; }
+      100% { transform: scale(2); opacity: 0; }
+    }
+
+    .assignment-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+    }
+
+    .assignment-grid a {
+      color: var(--main-color);
+      text-decoration: none;
+      font-size: 0.9rem;
+      padding: 0.4rem;
+      border: 1px solid var(--main-color);
+      border-radius: 6px;
+      transition: background 0.3s ease;
+    }
+
+    .assignment-grid a:hover {
+      background: rgba(94, 124, 226, 0.1);
+    }
+
+    /* For medium screens: switch to 2 columns */
+    @media (max-width: 900px) {
+    .assignment-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    }
+
+    /* For small screens: switch to 1 column */
+    @media (max-width: 600px) {
+    .assignment-grid {
+        grid-template-columns: 1fr;
+    }
+    }
+
+    #fade-overlay {
+        position: fixed;
+        inset: 0;
+        background-color: var(--bg-color); /* solid color */
+        z-index: 9999;
+        opacity: 1;
+        transition: opacity 1.5s ease-out;
+        pointer-events: none;
+    }
+
+    #fade-overlay.fade-out {
+        opacity: 0;
+    }
+
+  </style>
+</head>
+<body>
+  <!-- <div class="dna-bg" id="dna-bg"></div> -->
+  <!-- <div class="container"> -->
+  <div id="fade-overlay"></div>
+    <nav>
+        <button onclick="explodeAndRedirect('index.html')"><img class="icon" data-light="img/start-light-2.svg" data-dark="img/start-dark-2.svg" alt="Back">Back to Start</button>
+        <button onclick="explodeAndRedirect('about.html')"><img class="icon" data-light="img/about-light-2.svg" data-dark="img/about-dark-2.svg" alt="About">About</button>
+        <button onclick="explodeAndRedirect('work.html')"><img class="icon" data-light="img/work-light.svg" data-dark="img/work-dark.svg" alt="Work">Work</button>
+        <button onclick="explodeAndRedirect('hw.html')"><img class="icon" data-light="img/hw-light-3.svg" data-dark="img/hw-dark-3.svg" alt="Work">Homeworks</button>
+        <button onclick="explodeAndRedirect('blogs.html')"><img class="icon" data-light="img/blogs-light-3.svg" data-dark="img/blogs-dark-3.svg" alt="Work">Blogs</button>
+        <button id="mode-toggle">
+            <img id="mode-icon" class="icon" data-light="img/theme-light-2.svg" data-dark="img/theme-dark-2.svg" alt="Toggle Theme">
+            Mode
+          </button>
+    </nav>
+  <!-- </div> -->
+
+    <header>
+      <h5>About me</h5>
+      <p class="big-quote">Under development.. Feel free to check my linkedin here!</p>
+    </header>
+
+    <div class="container">
+      <div class="assignment-grid" style="grid-template-columns: 1fr;">
+        <a style="font-size: 2rem;" href="https://www.linkedin.com/in/vhmavn/"> My linkedin 🤗 </a>
+      </div>
+    </div>
+
+  <script>
+
+    const toggle = document.getElementById('mode-toggle');
+    const icon = document.getElementById('mode-icon');
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+    function updateIcons() {
+      const icons = document.querySelectorAll('img.icon');
+      const isDark = document.body.classList.contains('dark-mode');
+      icons.forEach(icon => {
+        const src = isDark ? icon.dataset.dark : icon.dataset.light;
+        if (src) icon.src = src;
+      });
+    }
+
+    function updateIcon() {
+      icon.alt = document.body.classList.contains('dark-mode') ? 'Switch to Light Mode' : 'Switch to Dark Mode';
+      updateIcons();
+    }
+    
+    // Fade in effect
+    window.addEventListener("load", () => {
+        const overlay = document.getElementById("fade-overlay");
+        overlay.classList.add("fade-out");
+    });
+    setTimeout(() => {
+        overlay.classList.add("fade-out");
+    }, 500);
+
+    toggle.addEventListener('click', () => {
+        document.body.classList.toggle('dark-mode');
+        const isDark = document.body.classList.contains('dark-mode');
+        localStorage.setItem('theme', isDark ? 'dark' : 'light');  // <- NEW
+        updateIcon();
+    });
+
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme) {
+    if (savedTheme === 'dark') {
+        document.body.classList.add('dark-mode');
+    }
+    } else if (prefersDark) {
+    document.body.classList.add('dark-mode');
+    }
+    updateIcon();
+
+    function explodeAndRedirect(url) {
+      document.body.classList.add("explode");
+      setTimeout(() => {
+        window.location.href = url;
+      }, 1000);
+    }
+
+    function generateDnaLines(rows = 100, cols = 80) {
+      const now = Date.now();
+      let result = '';
+      for (let i = 0; i < rows; i++) {
+        let line = '';
+        for (let j = 0; j < cols; j++) {
+          line += Math.round(Math.random());
+        }
+        result += line + '\n';
+      }
+      return result;
+    }
+
+    function updateDnaLoop() {
+      document.getElementById('dna-bg').textContent = generateDnaLines();
+    }
+
+    updateDnaLoop();
+    setInterval(updateDnaLoop, 3000);
+
+  </script>
+</body>
+</html>

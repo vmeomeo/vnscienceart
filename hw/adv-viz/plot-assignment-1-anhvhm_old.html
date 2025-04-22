@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    #vis.vega-embed {
+      width: 100%;
+      display: flex;
+    }
+
+    #vis.vega-embed details,
+    #vis.vega-embed details summary {
+      position: relative;
+    }
+  </style>
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/vega@5"></script>
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/vega-lite@5.20.1"></script>
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/vega-embed@6"></script>
+</head>
+<body>
+  <div id="vis"></div>
+  <script>
+    (function(vegaEmbed) {
+      var spec = {"config": {"view": {"continuousWidth": 300, "continuousHeight": 300}}, "hconcat": [{"mark": {"type": "area"}, "encoding": {"color": {"field": "Origin", "title": "Origin", "type": "nominal"}, "opacity": {"condition": {"param": "param_15", "value": 0.55}, "value": 0.3}, "x": {"field": "Year", "title": "Year", "type": "temporal"}, "y": {"field": "Count", "stack": null, "title": "Production Count", "type": "quantitative"}}, "height": 150, "name": "view_12", "title": "Overview (Brush to zoom)", "width": 300}, {"mark": {"type": "line", "point": true}, "encoding": {"color": {"field": "Origin", "title": "Origin", "type": "nominal"}, "tooltip": [{"field": "Year", "type": "temporal"}, {"field": "Origin", "type": "nominal"}, {"field": "Count", "type": "quantitative"}], "x": {"field": "Year", "title": "Year", "type": "temporal"}, "y": {"field": "Count", "title": "Production Count", "type": "quantitative"}}, "height": 300, "name": "view_13", "title": "Detail View (Zoomed)", "transform": [{"filter": {"param": "param_15"}}], "width": 500}], "data": {"name": "data-ccf01a80dda5e3e4a8ba5d8c9b295184"}, "params": [{"name": "param_15", "select": {"type": "interval", "encodings": ["x"]}, "views": ["view_12"]}, {"name": "param_16", "select": {"type": "interval", "encodings": ["x", "y"]}, "bind": "scales", "views": ["view_13"]}], "resolve": {"scale": {"color": "independent"}}, "$schema": "https://vega.github.io/schema/vega-lite/v5.20.1.json", "datasets": {"data-ccf01a80dda5e3e4a8ba5d8c9b295184": [{"Year": "1970-01-01T00:00:00", "Origin": "Europe", "Count": 6}, {"Year": "1970-01-01T00:00:00", "Origin": "Japan", "Count": 2}, {"Year": "1970-01-01T00:00:00", "Origin": "USA", "Count": 27}, {"Year": "1971-01-01T00:00:00", "Origin": "Europe", "Count": 5}, {"Year": "1971-01-01T00:00:00", "Origin": "Japan", "Count": 4}, {"Year": "1971-01-01T00:00:00", "Origin": "USA", "Count": 20}, {"Year": "1972-01-01T00:00:00", "Origin": "Europe", "Count": 5}, {"Year": "1972-01-01T00:00:00", "Origin": "Japan", "Count": 5}, {"Year": "1972-01-01T00:00:00", "Origin": "USA", "Count": 18}, {"Year": "1973-01-01T00:00:00", "Origin": "Europe", "Count": 7}, {"Year": "1973-01-01T00:00:00", "Origin": "Japan", "Count": 4}, {"Year": "1973-01-01T00:00:00", "Origin": "USA", "Count": 29}, {"Year": "1974-01-01T00:00:00", "Origin": "Europe", "Count": 6}, {"Year": "1974-01-01T00:00:00", "Origin": "Japan", "Count": 6}, {"Year": "1974-01-01T00:00:00", "Origin": "USA", "Count": 15}, {"Year": "1975-01-01T00:00:00", "Origin": "Europe", "Count": 6}, {"Year": "1975-01-01T00:00:00", "Origin": "Japan", "Count": 4}, {"Year": "1975-01-01T00:00:00", "Origin": "USA", "Count": 20}, {"Year": "1976-01-01T00:00:00", "Origin": "Europe", "Count": 8}, {"Year": "1976-01-01T00:00:00", "Origin": "Japan", "Count": 4}, {"Year": "1976-01-01T00:00:00", "Origin": "USA", "Count": 22}, {"Year": "1977-01-01T00:00:00", "Origin": "Europe", "Count": 4}, {"Year": "1977-01-01T00:00:00", "Origin": "Japan", "Count": 6}, {"Year": "1977-01-01T00:00:00", "Origin": "USA", "Count": 18}, {"Year": "1978-01-01T00:00:00", "Origin": "Europe", "Count": 6}, {"Year": "1978-01-01T00:00:00", "Origin": "Japan", "Count": 8}, {"Year": "1978-01-01T00:00:00", "Origin": "USA", "Count": 22}, {"Year": "1979-01-01T00:00:00", "Origin": "Europe", "Count": 4}, {"Year": "1979-01-01T00:00:00", "Origin": "Japan", "Count": 2}, {"Year": "1979-01-01T00:00:00", "Origin": "USA", "Count": 23}, {"Year": "1980-01-01T00:00:00", "Origin": "Europe", "Count": 9}, {"Year": "1980-01-01T00:00:00", "Origin": "Japan", "Count": 13}, {"Year": "1980-01-01T00:00:00", "Origin": "USA", "Count": 7}, {"Year": "1982-01-01T00:00:00", "Origin": "Europe", "Count": 7}, {"Year": "1982-01-01T00:00:00", "Origin": "Japan", "Count": 21}, {"Year": "1982-01-01T00:00:00", "Origin": "USA", "Count": 33}]}};
+      var embedOpt = {"actions": false, "mode": "vega-lite"};
+
+      function showError(el, error){
+          el.innerHTML = ('<div style="color:red;">'
+                          + '<p>JavaScript Error: ' + error.message + '</p>'
+                          + "<p>This usually means there's a typo in your chart specification. "
+                          + "See the javascript console for the full traceback.</p>"
+                          + '</div>');
+          throw error;
+      }
+      const el = document.getElementById('vis');
+      vegaEmbed("#vis", spec, embedOpt)
+        .catch(error => showError(el, error));
+    })(vegaEmbed);
+
+  </script>
+</body>
+</html>
