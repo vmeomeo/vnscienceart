@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Uni Assignments – Bioinformatics</title>
+  <title>HW - DataViz - 02</title>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@800&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@1,900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Lato&display=swap" rel="stylesheet">
   <style>
     :root {
       --main-color: #5E7CE2;
@@ -257,6 +257,12 @@
         opacity: 0;
     }
 
+    iframe {
+      border: none;
+      width: 100%;
+      height: 600px;
+    }
+
   </style>
 </head>
 <body>
@@ -264,77 +270,30 @@
   <!-- <div class="container"> -->
   <div id="fade-overlay"></div>
     <nav>
-      <button onclick="explodeAndRedirect('index.html')"><img class="icon" data-light="img/start-light-2.svg" data-dark="img/start-dark-2.svg" alt="Back">Back to Start</button>
-        <button onclick="explodeAndRedirect('about.html')"><img class="icon" data-light="img/about-light-2.svg" data-dark="img/about-dark-2.svg" alt="About">About</button>
-        <button onclick="explodeAndRedirect('work.html')"><img class="icon" data-light="img/work-light.svg" data-dark="img/work-dark.svg" alt="Work">Work</button>
-        <button onclick="explodeAndRedirect('hw.html')"><img class="icon" data-light="img/hw-light-3.svg" data-dark="img/hw-dark-3.svg" alt="Work">Homeworks</button>
-        <button onclick="explodeAndRedirect('blogs.html')"><img class="icon" data-light="img/blogs-light-3.svg" data-dark="img/blogs-dark-3.svg" alt="Work">Blogs</button>
+        <button onclick="explodeAndRedirect('../../index.html')"><img class="icon" data-light="../../img/start-light-2.svg" data-dark="../../img/start-dark-2.svg" alt="Back">Back to Start</button>
+        <button onclick="explodeAndRedirect('../../about.html')"><img class="icon" data-light="../../img/about-light-2.svg" data-dark="../../img/about-dark-2.svg" alt="About">About</button>
+        <button onclick="explodeAndRedirect('../../work.html')"><img class="icon" data-light="../../img/work-light.svg" data-dark="../../img/work-dark.svg" alt="Work">Work</button>
+        <button onclick="explodeAndRedirect('../../hw.html')"><img class="icon" data-light="../../img/hw-light-3.svg" data-dark="../../img/hw-dark-3.svg" alt="Work">Homeworks</button>
+        <button onclick="explodeAndRedirect('../../blogs.html')"><img class="icon" data-light="../../img/blogs-light-3.svg" data-dark="../../img/blogs-dark-3.svg" alt="Work">Blogs</button>
         <button id="mode-toggle">
-            <img id="mode-icon" class="icon" data-light="img/theme-light-2.svg" data-dark="img/theme-dark-2.svg" alt="Toggle Theme">
+            <img id="mode-icon" class="icon" data-light="../../img/theme-light-2.svg" data-dark="../../img/theme-dark-2.svg" alt="Toggle Theme">
             Mode
           </button>
     </nav>
+  <!-- </div> -->
 
     <header>
-      <h5>Assignments</h5>
-      <p class="big-quote">Collection of some of my HW assignments while studying at Freie Universität Berlin</p>
+      <!-- <h5>Advanced Data Viz</h5> -->
+      <p class="big-quote">Advanced Data Visualization for Artificial Intelligence (Georges Hattab)</p>
     </header>
-  
-  <div class="container">
 
-    <section class="assignments">
-      <h1>Msc Bioinformatics</h1>
-
-      <div class="course-box">
-        <h3>Advanced Data Visualization</h3>
-      <!-- </div> -->
-        <p>Assignments, plots, and tools for understanding complex data.</p>
-        <div class="assignment-grid">
-            <a href="hw/adv-viz/adv-viz-assign1.html">📄 Assignment 1</a>
-            <a href="hw/adv-viz/adv-viz-assign2.html">📄 Assignment 2</a>
-            <!-- <a href="hw/adv-viz/adv-viz-assign3.html">📄 Assignment 3</a>
-            <a href="hw/adv-viz/adv-viz-assign4.html">📄 Assignment 4</a>
-            <a href="hw/adv-viz/adv-viz-assign5.html">📄 Assignment 5</a>
-            <a href="hw/adv-viz/adv-viz-assign6.html">📄 Assignment 6</a>
-            <a href="hw/adv-viz/adv-viz-assign7.html">📄 Assignment 7</a>
-            <a href="hw/adv-viz/adv-viz-assign8.html">📄 Assignment 8</a>
-            <a href="hw/adv-viz/adv-viz-assign9.html">📄 Assignment 9</a> -->
-        </div>
+    <div class="container">
+      <div class="assignment-grid" style="grid-template-columns: 1fr;">
+        <a style="font-size: 2rem;"> Demographic Data: 63 countries population, life expectancy, and fertility rate between 1955 to 2005 </a>
+        <h3 style="font-family: 'Lato', sans-serif; font-size: clamp(0.5rem, 5vw, 1.5rem);">Homework 2: Adapt the first plot from "A Peek Ahead: Interactive Filtering", to not only represent the change in population over time but also changes in life expectancy and fertility. Consider concatenatenating the three plots horizontally and link them to the slider. Please submit your work as a stand-alone visualization in an HTML web page.</h3>
+        <iframe src="plot-assignment-2-anhvhm.html"></iframe>
       </div>
-
-      <!-- <div class="course-box">
-        <h3>Complex Systems</h3>
-        <p>Simulation projects and mathematical models of complex systems in biology.</p>
-        <div class="assignment-grid">
-            <a href="adv-algo-assign1.html">📄 Assignment 1</a>
-            <a href="adv-algo-assign2.html">📄 Assignment 2</a>
-            <a href="adv-algo-assign3.html">📄 Assignment 3</a>
-            <a href="adv-algo-assign4.html">📄 Assignment 4</a>
-            <a href="adv-algo-assign5.html">📄 Assignment 5</a>
-            <a href="adv-algo-assign6.html">📄 Assignment 6</a>
-            <a href="adv-algo-assign7.html">📄 Assignment 7</a>
-            <a href="adv-algo-assign8.html">📄 Assignment 8</a>
-            <a href="adv-algo-assign9.html">📄 Assignment 9</a>
-        </div>
-      </div>
-
-      <div class="course-box">
-        <h3>Advanced Algorithms</h3>
-        <p>Algorithmic analysis and bioinformatics-related coding assignments.</p>
-        <div class="assignment-grid">
-            <a href="adv-algo-assign1.html">📄 Assignment 1</a>
-            <a href="adv-algo-assign2.html">📄 Assignment 2</a>
-            <a href="adv-algo-assign3.html">📄 Assignment 3</a>
-            <a href="adv-algo-assign4.html">📄 Assignment 4</a>
-            <a href="adv-algo-assign5.html">📄 Assignment 5</a>
-            <a href="adv-algo-assign6.html">📄 Assignment 6</a>
-            <a href="adv-algo-assign7.html">📄 Assignment 7</a>
-            <a href="adv-algo-assign8.html">📄 Assignment 8</a>
-            <a href="adv-algo-assign9.html">📄 Assignment 9</a>
-        </div>
-      </div> -->
-    </section>
-  </div>
+    </div>
 
   <script>
 
