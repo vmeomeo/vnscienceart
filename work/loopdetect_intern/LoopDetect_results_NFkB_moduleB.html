@@ -1,0 +1,1878 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>LoopDetect results</title>
+  <style>
+    :root {
+      --paper: #fbfaf2;
+      --panel: #fffef7;
+      --ink: #252525;
+      --muted: #6d6d64;
+      --line: #ded48a;
+      --line-soft: #eee7b2;
+      --gold: #dfd071;
+      --gold-dark: #b6a949;
+      --purple: #5e4fa2;
+      --purple-soft: #e8e1f1;
+      --green: #3f9461;
+      --green-soft: #dcecdf;
+      --olive: #a9aa5e;
+      --rose: #eadce5;
+      --red: #b94b52;
+      --blue: #337a92;
+      --shadow: 0 18px 42px rgba(48, 46, 26, .12);
+      --radius: 8px;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background:
+        linear-gradient(90deg, rgba(223,208,113,.16) 1px, transparent 1px),
+        linear-gradient(180deg, rgba(223,208,113,.12) 1px, transparent 1px),
+        var(--paper);
+      background-size: 34px 34px;
+      color: var(--ink);
+    }
+
+    button, input, select, textarea { font: inherit; }
+    button { cursor: pointer; }
+
+    .app {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 248px minmax(0, 1fr);
+    }
+
+    aside {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      border-right: 1px solid var(--line);
+      background: rgba(255, 254, 247, .9);
+      backdrop-filter: blur(10px);
+      padding: 22px 18px;
+      overflow: auto;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 22px;
+    }
+
+    .mark {
+      width: 42px;
+      height: 42px;
+      border: 2px solid var(--ink);
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      font-family: Georgia, serif;
+      font-weight: 800;
+      background: var(--panel);
+    }
+
+    .brand strong { display: block; font-size: 15px; }
+    .brand span { color: var(--muted); font-size: 12px; }
+
+    nav {
+      display: grid;
+      gap: 6px;
+      margin: 18px 0;
+    }
+
+    nav a {
+      color: var(--ink);
+      text-decoration: none;
+      padding: 9px 10px;
+      border-radius: var(--radius);
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      font-size: 14px;
+    }
+
+    nav a:hover, nav a.active { background: var(--line-soft); }
+
+    .mini-panel {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 12px;
+      background: var(--panel);
+      margin-top: 18px;
+    }
+
+    .mini-panel h3 {
+      margin: 0 0 10px;
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: var(--muted);
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 7px 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .swatch {
+      width: 16px;
+      height: 16px;
+      border-radius: 4px;
+      border: 1px solid rgba(0,0,0,.18);
+    }
+
+    main {
+      padding: 28px;
+      overflow: hidden;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 24px;
+      align-items: end;
+      margin-bottom: 22px;
+    }
+
+    h1 {
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(34px, 5vw, 64px);
+      line-height: .95;
+      margin: 0 0 12px;
+    }
+
+    .model-name {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid var(--line);
+      background: var(--panel);
+      border-radius: 999px;
+      padding: 8px 12px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: end;
+    }
+
+    .btn {
+      border: 1px solid var(--line);
+      background: var(--panel);
+      color: var(--ink);
+      border-radius: var(--radius);
+      padding: 9px 12px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 1px 0 rgba(0,0,0,.04);
+    }
+
+    .btn:hover { border-color: var(--gold-dark); background: #fff9d6; }
+    .btn.primary { background: var(--ink); color: white; border-color: var(--ink); }
+
+    .grid {
+      display: grid;
+      gap: 16px;
+    }
+
+    .metrics {
+      grid-template-columns: repeat(5, minmax(150px, 1fr));
+    }
+
+    .metric, .section {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(255,254,247,.94);
+      box-shadow: var(--shadow);
+    }
+
+    .metric {
+      padding: 14px;
+      min-height: 100px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .metric::before {
+      content: "";
+      position: absolute;
+      inset: 0 0 auto;
+      height: 7px;
+      background: var(--gold);
+    }
+
+    .metric span { color: var(--muted); font-size: 13px; }
+    .metric strong { display: block; margin-top: 10px; font-size: 30px; }
+    .metric small { color: var(--muted); }
+
+    .layout {
+      grid-template-columns: minmax(0, 1.1fr) minmax(340px, .9fr);
+      align-items: start;
+      margin-top: 16px;
+    }
+
+    .section {
+      overflow: hidden;
+    }
+
+    .section-header {
+      min-height: 44px;
+      background: var(--gold);
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 14px;
+    }
+
+    .section-header h2 {
+      margin: 0;
+      font-size: 17px;
+      font-family: Georgia, "Times New Roman", serif;
+    }
+
+    .section-body { padding: 14px; }
+
+    .toolbar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+
+    .graph-controls {
+      margin-left: auto;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .export-controls {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      flex-wrap: wrap;
+    }
+
+    .export-btn {
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.72);
+      color: var(--ink);
+      border-radius: 6px;
+      padding: 5px 7px;
+      font-size: 11px;
+      font-weight: 800;
+      line-height: 1;
+      cursor: pointer;
+    }
+
+    .export-btn:hover {
+      border-color: var(--gold-dark);
+      background: white;
+    }
+
+    .control, select, input[type="search"] {
+      border: 1px solid var(--line);
+      background: white;
+      border-radius: var(--radius);
+      min-height: 36px;
+      padding: 7px 9px;
+    }
+
+    .tags {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      min-height: 45px;
+      align-items: center;
+      padding: 8px;
+      background: #f7f4df;
+      border: 1px dashed var(--gold-dark);
+      border-radius: var(--radius);
+    }
+
+    .tag {
+      border: 1px solid rgba(0,0,0,.22);
+      border-radius: 7px;
+      padding: 7px 9px;
+      color: white;
+      background: var(--purple);
+      display: inline-flex;
+      gap: 7px;
+      align-items: center;
+      user-select: none;
+      cursor: grab;
+      box-shadow: 0 2px 0 rgba(0,0,0,.12);
+    }
+
+    .tag:nth-child(3n + 2) { background: var(--green); }
+    .tag:nth-child(3n) { background: var(--olive); }
+    .tag.dragging { opacity: .45; }
+
+    .summary-table, .loop-table, .matrix {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    th, td {
+      border-bottom: 1px solid #ece6bd;
+      padding: 8px;
+      vertical-align: top;
+    }
+
+    th {
+      text-align: left;
+      color: #47452f;
+      background: #f3efcf;
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+
+    tbody tr:hover { background: #fff8d8; }
+
+    .matrix-wrap {
+      overflow: auto;
+      max-height: 520px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+    }
+
+    .matrix th, .matrix td {
+      text-align: center;
+      min-width: 56px;
+      padding: 7px;
+    }
+
+    .matrix th:first-child {
+      left: 0;
+      z-index: 2;
+      text-align: right;
+    }
+
+    .matrix .row-head {
+      position: sticky;
+      left: 0;
+      background: #f3efcf;
+      font-weight: 700;
+      text-align: right;
+    }
+
+    .cell {
+      display: inline-grid;
+      place-items: center;
+      width: 30px;
+      height: 30px;
+      border-radius: 6px;
+      border: 1px solid transparent;
+      font-weight: 800;
+    }
+
+    .cell.pos { background: var(--green-soft); color: #1d7141; border-color: #93caa2; }
+    .cell.neg { background: var(--purple-soft); color: var(--purple); border-color: #bfb3da; }
+    .cell.zero { color: #aaa; background: #f8f8f5; }
+
+    .ode-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .ode {
+      display: grid;
+      grid-template-columns: 86px minmax(0, 1fr);
+      gap: 10px;
+      align-items: start;
+      border: 1px solid #ece6bd;
+      border-radius: var(--radius);
+      padding: 10px;
+      background: #fffdf0;
+    }
+
+    .ode code {
+      font-family: "Cascadia Code", Consolas, monospace;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-size: 12px;
+    }
+
+    .latex {
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 16px;
+      color: #2d2b22;
+      line-height: 1.6;
+    }
+
+    .math {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 5px;
+    }
+
+    .frac {
+      display: inline-grid;
+      grid-template-rows: auto auto;
+      line-height: 1.05;
+      text-align: center;
+      vertical-align: middle;
+      margin: 0 3px;
+    }
+
+    .frac .num {
+      border-bottom: 1px solid currentColor;
+      padding: 0 4px 2px;
+    }
+
+    .frac .den {
+      padding: 2px 4px 0;
+    }
+
+    .viz {
+      width: 100%;
+      min-height: 460px;
+      border: 1px solid var(--line);
+      background: linear-gradient(180deg, #fffef8, #fbfaf2);
+      border-radius: var(--radius);
+      overflow: hidden;
+      touch-action: none;
+    }
+
+    svg { display: block; width: 100%; height: 100%; }
+    .node { filter: drop-shadow(0 2px 2px rgba(0,0,0,.18)); cursor: pointer; }
+    .editing .node { cursor: move; }
+    .node rect { stroke: #252525; stroke-width: 1.4; rx: 7; }
+    .node text { fill: white; font-weight: 800; font-size: 13px; pointer-events: none; }
+    .edge { fill: none; stroke-width: 2.15; opacity: .9; stroke-linecap: round; stroke-linejoin: round; }
+    .edge.pos { color: var(--green); stroke: var(--green); marker-end: url(#arrowPos); }
+    .edge.neg { color: var(--purple); stroke: var(--purple); marker-end: url(#barNeg); }
+    .edge.loop-positive { color: var(--green); stroke: var(--green); }
+    .edge.loop-negative { color: var(--purple); stroke: var(--purple); }
+    .edge.dim { opacity: .12; }
+    .edge.highlight-hit { opacity: 1; stroke-width: 3.3; filter: drop-shadow(0 1px 2px rgba(0,0,0,.24)); }
+    .edge.highlight-miss { opacity: .12; filter: grayscale(.7); }
+    .node.highlight-hit rect { stroke-width: 2.7; stroke: #111; }
+    .node.highlight-hit { opacity: 1; }
+    .node.highlight-miss { opacity: .22; filter: grayscale(.75); }
+    .loop-card svg.has-highlight { background: linear-gradient(180deg, #fffef8, #f9f7e7); }
+
+    .loop-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 12px;
+    }
+
+    .loop-card {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fffdf5;
+      overflow: hidden;
+    }
+
+    .loop-card header {
+      min-height: 38px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 8px 10px;
+      background: #f3efcf;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .loop-card svg {
+      height: 190px;
+      background: linear-gradient(180deg, #fffef8, #faf8eb);
+      touch-action: none;
+      cursor: grab;
+    }
+
+    .loop-card.editing svg { cursor: grab; }
+    .loop-card.editing .node { cursor: move; }
+
+    .edge-symbol {
+      stroke: currentColor;
+      stroke-width: 2.3;
+      stroke-linecap: round;
+      fill: none;
+    }
+
+    .loop-path {
+      display: inline-flex;
+      gap: 6px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      padding: 5px 8px;
+      background: white;
+      white-space: nowrap;
+    }
+
+    .pill.pos { border-color: #a8cfae; background: var(--green-soft); color: #205f3d; }
+    .pill.neg { border-color: #c9b9d9; background: var(--purple-soft); color: var(--purple); }
+
+    .tabs {
+      display: inline-flex;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      overflow: hidden;
+      background: white;
+    }
+
+    .tab {
+      border: 0;
+      background: transparent;
+      padding: 7px 10px;
+    }
+
+    .tab.active { background: var(--ink); color: white; }
+
+    .hidden { display: none !important; }
+
+    .analysis-bars {
+      display: grid;
+      gap: 10px;
+    }
+
+    .loop-summary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(92px, 1fr));
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .summary-chip {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: white;
+      padding: 10px;
+    }
+
+    .summary-chip span {
+      display: block;
+      color: var(--muted);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+    }
+
+    .summary-chip strong {
+      display: block;
+      margin-top: 5px;
+      font-size: 24px;
+    }
+
+    .bar-row {
+      display: grid;
+      grid-template-columns: 90px minmax(0, 1fr) 44px;
+      gap: 8px;
+      align-items: center;
+      font-size: 13px;
+    }
+
+    .bar {
+      height: 14px;
+      background: #eee9c4;
+      border-radius: 999px;
+      overflow: hidden;
+      display: flex;
+    }
+
+    .bar .pos { background: var(--green); }
+    .bar .neg { background: var(--purple); }
+
+    textarea {
+      width: 100%;
+      min-height: 160px;
+      resize: vertical;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 10px;
+      background: #fffdf5;
+      font-family: "Cascadia Code", Consolas, monospace;
+      font-size: 12px;
+    }
+
+    .toast, .tooltip {
+      position: fixed;
+      pointer-events: none;
+      background: #252525;
+      color: white;
+      padding: 8px 10px;
+      border-radius: 7px;
+      font-size: 12px;
+      max-width: 320px;
+      z-index: 10;
+      box-shadow: var(--shadow);
+    }
+
+    .toast {
+      right: 20px;
+      bottom: 20px;
+      opacity: 0;
+      transform: translateY(8px);
+      transition: .2s ease;
+    }
+
+    .toast.show { opacity: 1; transform: translateY(0); }
+
+    @media (max-width: 980px) {
+      .app { grid-template-columns: 1fr; }
+      aside { position: static; height: auto; }
+      nav { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .hero, .layout { grid-template-columns: 1fr; }
+      .hero-actions { justify-content: start; }
+      .metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    @media (max-width: 560px) {
+      main { padding: 16px; }
+      .metrics { grid-template-columns: 1fr; }
+      .ode { grid-template-columns: 1fr; }
+      nav { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside>
+      <div class="brand">
+        <div class="mark">LD</div>
+        <div>
+          <strong>LoopDetect</strong>
+          <span>interactive result explorer</span>
+        </div>
+      </div>
+      <nav id="nav">
+        <a href="#summary" class="active">0 Summary</a>
+        <a href="#odes">1 ODEs</a>
+        <a href="#graph">2 Interaction graph</a>
+        <a href="#matrix">3 Jacobian matrix</a>
+        <a href="#loops">4 Loop structures</a>
+        <a href="#analysis">5 Analysis</a>
+      </nav>
+      <div class="mini-panel">
+        <h3>Signs</h3>
+        <div class="legend-item"><span class="swatch" style="background:var(--green)"></span> Positive activation</div>
+        <div class="legend-item"><span class="swatch" style="background:var(--purple)"></span> Negative inhibition</div>
+        <div class="legend-item"><span class="swatch" style="background:var(--gold)"></span> Figure-derived accent</div>
+      </div>
+      <div class="mini-panel">
+        <h3>Design idea</h3>
+        <div class="legend-item">Drag species tags to reorder matrix axes and graph emphasis.</div>
+      </div>
+    </aside>
+
+    <main>
+      <header class="hero">
+        <div>
+          <h1>LoopDetect results</h1>
+          <div class="model-name">Model <strong id="modelName">NFkB_model_B</strong></div>
+        </div>
+        <div class="hero-actions">
+          <button class="btn" id="resetOrder">Reset order</button>
+          <button class="btn primary" id="exportJson">Export JSON</button>
+        </div>
+      </header>
+
+      <section id="summary" class="grid metrics"></section>
+
+      <section class="grid layout">
+        <div class="section" id="states">
+          <div class="section-header">
+            <h2>Parameters and Initial States</h2>
+            <span class="pill">Module B fitted Ashall example</span>
+          </div>
+          <div class="section-body">
+            <div class="toolbar">
+              <input id="paramSearch" class="control" type="search" placeholder="Filter parameters or species" />
+              <select id="summaryMode">
+                <option value="all">Parameters and states</option>
+                <option value="parameters">Parameters only</option>
+                <option value="states">States only</option>
+              </select>
+            </div>
+            <table class="summary-table">
+              <thead><tr><th>Type</th><th>Name</th><th>Value</th><th>Note</th></tr></thead>
+              <tbody id="summaryTable"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-header">
+            <h2>Species Order</h2>
+            <span class="pill">drag tags</span>
+          </div>
+          <div class="section-body">
+            <div id="tags" class="tags"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="odes" style="margin-top:16px">
+        <div class="section-header">
+          <h2>ODEs</h2>
+          <span class="pill">LaTeX-like display from MATLAB assignments</span>
+        </div>
+        <div class="section-body">
+          <div id="odeList" class="ode-list"></div>
+        </div>
+      </section>
+
+      <section class="grid layout">
+        <div class="section" id="graph">
+          <div class="section-header">
+            <h2>Interaction Graph</h2>
+            <span class="pill" id="graphHint">hover nodes and edges</span>
+          </div>
+          <div class="section-body">
+            <div class="toolbar">
+              <select id="stageSelect">
+                <option value="offLate">TR = 0, late initial stage</option>
+                <option value="onLate" selected>TR = 1, after first time point</option>
+              </select>
+              <select id="focusNode">
+                <option value="">All nodes</option>
+              </select>
+              <div class="graph-controls">
+                <button class="btn" data-zoom-target="graph" data-zoom="out">−</button>
+                <button class="btn" data-zoom-target="graph" data-zoom="in">+</button>
+                <button class="btn" data-zoom-target="graph" data-zoom="reset">Reset view</button>
+                <label class="pill"><input type="checkbox" id="graphEdit" /> edit graph</label>
+                <span class="export-controls" aria-label="Export interaction graph">
+                  <button class="export-btn" data-export-target="graph" data-export-format="svg">SVG</button>
+                  <button class="export-btn" data-export-target="graph" data-export-format="png">PNG</button>
+                  <button class="export-btn" data-export-target="graph" data-export-format="jpg">JPG</button>
+                </span>
+              </div>
+            </div>
+            <div class="viz" id="graphCanvas"></div>
+          </div>
+        </div>
+
+        <div class="section" id="matrix">
+          <div class="section-header">
+            <h2>Signed Jacobian Matrix</h2>
+            <span class="pill">J(target, source)</span>
+          </div>
+          <div class="section-body">
+            <div class="toolbar">
+              <button class="btn" id="sortByLoops">Sort by loop count</button>
+              <button class="btn" id="sortByName">Sort A-Z</button>
+            </div>
+            <div id="matrixWrap" class="matrix-wrap"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="loops" style="margin-top:16px">
+        <div class="section-header">
+          <h2>Loop Structure Results</h2>
+          <div class="tabs">
+            <button class="tab active" data-view="table">Table</button>
+            <button class="tab" data-view="network">Node-edge</button>
+          </div>
+        </div>
+        <div class="section-body">
+          <div class="toolbar">
+            <input id="loopSearch" class="control" type="search" placeholder="Filter loops by species" />
+            <select id="signFilter">
+              <option value="all">All signs</option>
+              <option value="positive">Positive loops</option>
+              <option value="negative">Negative loops</option>
+            </select>
+            <select id="lengthFilter">
+              <option value="all">All lengths</option>
+            </select>
+            <label class="pill"><input type="checkbox" id="includeSelf" /> include self-loops</label>
+            <div class="graph-controls">
+              <button class="btn" data-zoom-target="loops" data-zoom="out">−</button>
+              <button class="btn" data-zoom-target="loops" data-zoom="in">+</button>
+              <button class="btn" data-zoom-target="loops" data-zoom="reset">Reset views</button>
+              <label class="pill"><input type="checkbox" id="loopEdit" /> edit loops</label>
+            </div>
+          </div>
+          <div id="loopTableView">
+            <table class="loop-table">
+              <thead><tr><th data-sort="id">Index</th><th data-sort="length">Length</th><th data-sort="sign">Sign</th><th>Loop</th></tr></thead>
+              <tbody id="loopTable"></tbody>
+            </table>
+          </div>
+          <div id="loopNetworkView" class="hidden">
+            <div class="loop-grid" id="loopCanvas"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="grid layout">
+        <div class="section" id="loop-summary">
+          <div class="section-header">
+            <h2>Loop Summary</h2>
+            <span class="pill" id="loopSummaryScope">multi-node loops</span>
+          </div>
+          <div class="section-body">
+            <div id="loopSummaryCards" class="loop-summary-grid"></div>
+            <table class="loop-table">
+              <thead><tr><th>Length</th><th>Total</th><th>Positive</th><th>Negative</th></tr></thead>
+              <tbody id="loopSummaryTable"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="section" id="analysis">
+          <div class="section-header">
+            <h2>Number of loops containing node</h2>
+            <div class="export-controls">
+              <span class="pill" id="analysisScope">multi-node loops</span>
+              <button class="export-btn" data-export-target="node-analysis" data-export-format="svg">SVG</button>
+              <button class="export-btn" data-export-target="node-analysis" data-export-format="png">PNG</button>
+              <button class="export-btn" data-export-target="node-analysis" data-export-format="jpg">JPG</button>
+            </div>
+          </div>
+          <div class="section-body">
+            <div id="analysisBars" class="analysis-bars"></div>
+          </div>
+        </div>
+
+        <div class="section" id="edge-analysis">
+          <div class="section-header">
+            <h2>Number of loops containing edge</h2>
+            <div class="export-controls">
+              <span class="pill" id="edgeAnalysisScope">multi-node loops</span>
+              <button class="export-btn" data-export-target="edge-analysis" data-export-format="svg">SVG</button>
+              <button class="export-btn" data-export-target="edge-analysis" data-export-format="png">PNG</button>
+              <button class="export-btn" data-export-target="edge-analysis" data-export-format="jpg">JPG</button>
+            </div>
+          </div>
+          <div class="section-body">
+            <div id="edgeAnalysisBars" class="analysis-bars"></div>
+          </div>
+        </div>
+
+      </section>
+    </main>
+  </div>
+
+  <div id="tooltip" class="tooltip hidden"></div>
+  <div id="toast" class="toast">Copied result JSON</div>
+
+  <script>
+    const data = {
+      model: "NFkB_model_B",
+      labels: ["A20", "mA20", "IKK", "IkBa", "nIkBaNFkB", "tIkBa", "nNFkB", "IKKn", "IKKi"],
+      parameters: [
+        ["p1", 9727.7, "fitted parameter 1"],
+        ["p2", 0, "fitted parameter 2"],
+        ["p3", 0.9, "fitted parameter 3"],
+        ["p4", 0.2, "fitted parameter 4"],
+        ["p5", 0, "fitted parameter 5"],
+        ["p6", 0, "fitted parameter 6"],
+        ["p7", 0, "mA20 degradation / Roquin-dependent term"],
+        ["p8", 0, "tIkBa degradation / Roquin-dependent term"],
+        ["p9", 0.1, "A20 translation from mA20"],
+        ["p12", 0.1, "mA20 synthesis from nNFkB"],
+        ["p13", 0, "tIkBa synthesis from nNFkB"],
+        ["p14", 39.3, "nIkBaNFkB contribution"],
+        ["p15", 1.4454, "total NFkB initial pool"],
+        ["p16", 0, "TNF-dependent IKK activation"],
+        ["p17", 0.2, "IKK inactivation"],
+        ["p18", 0, "IKKi reactivation"],
+        ["p19", 1000, "A20 inhibition scale"],
+        ["p20", 506.5592, "total IKK initial pool"]
+      ],
+      states: [
+        ["A20", 0, "A20 protein"],
+        ["mA20", 0, "A20 transcript"],
+        ["IKK", 0, "active IKK"],
+        ["IkBa", 0, "free cytoplasmic IkBa"],
+        ["nIkBaNFkB", 0, "nuclear IkBa-NFkB complex"],
+        ["tIkBa", 0, "IkBa transcript"],
+        ["nNFkB", 1.4454, "total NFkB initial value"],
+        ["IKKn", 0, "neutral IKK"],
+        ["IKKi", 506.5592, "inactive IKK pool"]
+      ],
+      odes: [
+        ["A20", "-p_3 A20 + p_9 mA20", "-param(3)*A20 + param(9)*mA20"],
+        ["mA20", "-p_7 mA20 R_1 + p_{12} nNFkB KO", "-param(7)*mA20*Roquin(1) + param(12)*N*KO"],
+        ["IKK", "TR p_{16} IKKn - p_{17} IKK", "TR*param(16)*IKKn - param(17)*IKK"],
+        ["IkBa", "-p_1 IkBa nNFkB - p_5 IkBa + p_{11} tIkBa + p_{14} nIkBaNFkB", "-param(1)*IkB*N - param(5)*IkB + param(11)*Im + param(14)*IN"],
+        ["nIkBaNFkB", "p_1 IkBa nNFkB - p_6 IKK nIkBaNFkB - p_{14} nIkBaNFkB", "param(1)*IkB*N - param(6)*IKK*IN - param(14)*IN"],
+        ["tIkBa", "-p_8 tIkBa R_2 + p_{13} nNFkB", "-param(8)*Im*Roquin(2) + param(13)*N"],
+        ["nNFkB", "-p_1 IkBa nNFkB + p_6 IKK nIkBaNFkB + p_{14} nIkBaNFkB", "-param(1)*IkB*N + param(6)*IKK*IN + param(14)*IN"],
+        ["IKKn", "p_{18} IKKi \\frac{p_{19}}{p_{19}+A20 TR} - TR p_{16} IKKn", "param(18)*IKKi*(param(19)/(param(19)+A20*TR)) - TR*param(16)*IKKn"],
+        ["IKKi", "p_{17} IKK - p_{18} IKKi \\frac{p_{19}}{p_{19}+A20 TR}", "param(17)*IKK - param(18)*IKKi*(param(19)/(param(19)+A20*TR))"]
+      ],
+      matrices: {
+        offLate: [
+          [-1, 1, 0, 0, 0, 0, 0, 0, 0],
+          [0, -1, 0, 0, 0, 0, 1, 0, 0],
+          [0, 0, -1, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, -1, 1, 1, -1, 0, 0],
+          [0, 0, -1, 1, -1, 0, 1, 0, 0],
+          [0, 0, 0, 0, 0, -1, 1, 0, 0],
+          [0, 0, 1, -1, 1, 0, -1, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 1],
+          [0, 0, 1, 0, 0, 0, 0, 0, -1]
+        ],
+        onLate: [
+          [-1, 1, 0, 0, 0, 0, 0, 0, 0],
+          [0, -1, 0, 0, 0, 0, 1, 0, 0],
+          [0, 0, -1, 0, 0, 0, 0, 1, 0],
+          [0, 0, 0, -1, 1, 1, -1, 0, 0],
+          [0, 0, -1, 1, -1, 0, 1, 0, 0],
+          [0, 0, 0, 0, 0, -1, 1, 0, 0],
+          [0, 0, 1, -1, 1, 0, -1, 0, 0],
+          [-1, 0, 0, 0, 0, 0, 0, -1, 1],
+          [1, 0, 1, 0, 0, 0, 0, 0, -1]
+        ]
+      },
+      loops: [
+        [1, [1,1], 1, -1, "A20 -| A20"],
+        [2, [2,2], 1, -1, "mA20 -| mA20"],
+        [3, [3,3], 1, -1, "IKK -| IKK"],
+        [4, [4,4], 1, -1, "IkBa -| IkBa"],
+        [5, [5,5], 1, -1, "nIkBaNFkB -| nIkBaNFkB"],
+        [6, [6,6], 1, -1, "tIkBa -| tIkBa"],
+        [7, [7,7], 1, -1, "nNFkB -| nNFkB"],
+        [8, [8,8], 1, -1, "IKKn -| IKKn"],
+        [9, [9,9], 1, -1, "IKKi -| IKKi"],
+        [10, [5,4,5], 2, 1, "nIkBaNFkB -> IkBa -> nIkBaNFkB"],
+        [11, [7,4,7], 2, 1, "nNFkB -| IkBa -| nNFkB"],
+        [12, [7,5,7], 2, 1, "nNFkB -> nIkBaNFkB -> nNFkB"],
+        [13, [7,4,5,7], 3, -1, "nNFkB -| IkBa -> nIkBaNFkB -> nNFkB"],
+        [14, [7,5,4,7], 3, -1, "nNFkB -> nIkBaNFkB -> IkBa -| nNFkB"],
+        [15, [7,6,4,7], 3, -1, "nNFkB -> tIkBa -> IkBa -| nNFkB"],
+        [16, [9,8,3,9], 3, 1, "IKKi -> IKKn -> IKK -> IKKi"],
+        [17, [7,6,4,5,7], 4, 1, "nNFkB -> tIkBa -> IkBa -> nIkBaNFkB -> nNFkB"],
+        [18, [8,3,7,2,1,8], 5, -1, "IKKn -> IKK -> nNFkB -> mA20 -> A20 -| IKKn"],
+        [19, [8,3,5,7,2,1,8], 6, 1, "IKKn -> IKK -| nIkBaNFkB -> nNFkB -> mA20 -> A20 -| IKKn"],
+        [20, [9,8,3,7,2,1,9], 6, 1, "IKKi -> IKKn -> IKK -> nNFkB -> mA20 -> A20 -> IKKi"],
+        [21, [8,3,5,4,7,2,1,8], 7, -1, "IKKn -> IKK -| nIkBaNFkB -> IkBa -| nNFkB -> mA20 -> A20 -| IKKn"],
+        [22, [9,8,3,5,7,2,1,9], 7, -1, "IKKi -> IKKn -> IKK -| nIkBaNFkB -> nNFkB -> mA20 -> A20 -> IKKi"],
+        [23, [9,8,3,5,4,7,2,1,9], 8, 1, "IKKi -> IKKn -> IKK -| nIkBaNFkB -> IkBa -| nNFkB -> mA20 -> A20 -> IKKi"]
+      ]
+    };
+
+    const state = {
+      order: [...data.labels],
+      stage: "onLate",
+      loopView: "table",
+      sort: { key: "length", dir: 1 },
+      graphEdit: false,
+      loopEdit: false,
+      graphTransform: { x: 0, y: 0, k: 1 },
+      loopTransforms: {},
+      graphPositions: {},
+      loopPositions: {},
+      selectedGraphNodes: new Set(),
+      selectedLoopNodes: new Set(),
+      selectedLoopEdges: new Set()
+    };
+
+    const $ = selector => document.querySelector(selector);
+    const $$ = selector => Array.from(document.querySelectorAll(selector));
+    const labelIndex = label => data.labels.indexOf(label);
+    const byId = id => data.labels[id - 1];
+    const matrix = () => data.matrices[state.stage];
+
+    function init() {
+      $("#modelName").textContent = data.model;
+      populateFilters();
+      renderAll();
+      bindEvents();
+    }
+
+    function renderAll() {
+      renderMetrics();
+      renderSummaryTable();
+      renderTags();
+      renderOdes();
+      renderMatrix();
+      renderGraph();
+      renderLoops();
+      renderLoopSummary();
+      renderAnalysis();
+      renderEdgeAnalysis();
+    }
+
+    function renderMetrics() {
+      const activeLoops = getFilteredLoops(false);
+      const edges = getEdges(matrix()).filter(e => e.sign !== 0);
+      const pos = activeLoops.filter(l => l.sign > 0).length;
+      const neg = activeLoops.filter(l => l.sign < 0).length;
+      $("#summary").innerHTML = [
+        metric("Species", data.labels.length, "drag order"),
+        metric("Parameters", data.parameters.length, "fitted sample subset"),
+        metric("Edges", edges.length, `${edges.filter(e => e.sign > 0).length} positive, ${edges.filter(e => e.sign < 0).length} negative`),
+        metric("Loops", activeLoops.length, `${pos} positive, ${neg} negative`),
+        metric("Max length", Math.max(...activeLoops.map(l => l.length)), "feedback cycle")
+      ].join("");
+    }
+
+    function metric(label, value, note) {
+      return `<article class="metric"><span>${label}</span><strong>${value}</strong><small>${note}</small></article>`;
+    }
+
+    function renderSummaryTable() {
+      const q = $("#paramSearch").value.toLowerCase();
+      const mode = $("#summaryMode").value;
+      const rows = [];
+      if (mode !== "states") {
+        data.parameters.forEach(([name, value, note]) => rows.push(["parameter", name, value, note]));
+      }
+      if (mode !== "parameters") {
+        data.states.forEach(([name, value, note]) => rows.push(["state", name, value, note]));
+      }
+      $("#summaryTable").innerHTML = rows
+        .filter(row => row.join(" ").toLowerCase().includes(q))
+        .map(([type, name, value, note]) => `<tr><td><span class="pill">${type}</span></td><td><strong>${name}</strong></td><td>${value}</td><td>${note}</td></tr>`)
+        .join("");
+    }
+
+    function renderTags() {
+      $("#tags").innerHTML = state.order.map(label => `<span class="tag" draggable="true" data-label="${label}">${label}</span>`).join("");
+      bindDrag();
+    }
+
+    function renderOdes() {
+      $("#odeList").innerHTML = data.odes.map(([name, latex, raw]) => `
+        <div class="ode" data-tip="${escapeHtml(raw)}">
+          <strong>${name}</strong>
+          <div>
+            <div class="latex math">${renderMathEquation(name, latex)}</div>
+            <code>${escapeHtml(raw)}</code>
+          </div>
+        </div>`).join("");
+      bindTips();
+    }
+
+    function renderMatrix() {
+      const m = matrix();
+      const header = `<tr><th>affected \\ regulator</th>${state.order.map(l => `<th>${l}</th>`).join("")}</tr>`;
+      const body = state.order.map(rowLabel => {
+        const r = labelIndex(rowLabel);
+        const cells = state.order.map(colLabel => {
+          const c = labelIndex(colLabel);
+          const v = m[r][c];
+          const cls = v > 0 ? "pos" : v < 0 ? "neg" : "zero";
+          const sign = v > 0 ? "+" : v < 0 ? "−" : "0";
+          const tip = `${colLabel} ${v > 0 ? "activates" : v < 0 ? "inhibits" : "does not directly affect"} ${rowLabel}`;
+          return `<td data-tip="${tip}"><span class="cell ${cls}">${sign}</span></td>`;
+        }).join("");
+        return `<tr><th class="row-head">${rowLabel}</th>${cells}</tr>`;
+      }).join("");
+      $("#matrixWrap").innerHTML = `<table class="matrix"><thead>${header}</thead><tbody>${body}</tbody></table>`;
+      bindTips();
+    }
+
+    function renderGraph() {
+      const focus = $("#focusNode").value;
+      const labels = state.order;
+      const m = matrix();
+      const edges = getEdges(m).filter(e => e.sign !== 0);
+      const el = $("#graphCanvas");
+      const w = Math.max(el.clientWidth || 800, 520);
+      const h = 460;
+      const centerX = w / 2;
+      const centerY = h / 2;
+      const rx = Math.min(w * .36, 330);
+      const ry = 160;
+      const key = `${state.stage}:${state.order.join("|")}`;
+      const positions = state.graphPositions[key] || {};
+      labels.forEach((label, i) => {
+        if (!positions[label]) {
+          const a = -Math.PI / 2 + i * Math.PI * 2 / labels.length;
+          positions[label] = { x: centerX + Math.cos(a) * rx, y: centerY + Math.sin(a) * ry };
+        }
+      });
+      state.graphPositions[key] = positions;
+
+      const edgeSvg = edges.map(e => edgeSvgPath(e, positions, focus, false, { graph: true })).join("");
+      const nodeSvg = labels.map((label, i) => nodeSvgBlock(label, positions[label], i, focus)).join("");
+      el.classList.toggle("editing", state.graphEdit);
+      el.innerHTML = svgFrame(w, h, viewportSvg(edgeSvg + nodeSvg, state.graphTransform), "LoopDetect interaction graph");
+      attachPanZoom(el.querySelector("svg"), state.graphTransform, () => applyViewport(el.querySelector("svg"), state.graphTransform), {
+        editEnabled: () => state.graphEdit,
+        positions,
+        rerenderPaths: () => updateGraphPaths(el.querySelector("svg"), positions, edges, focus)
+      });
+      bindTips();
+    }
+
+    function renderLoops() {
+      const loops = getFilteredLoops($("#includeSelf").checked);
+      if (state.sort.key) {
+        loops.sort((a, b) => {
+          const av = a[state.sort.key];
+          const bv = b[state.sort.key];
+          return (av > bv ? 1 : av < bv ? -1 : 0) * state.sort.dir;
+        });
+      }
+      $("#loopTable").innerHTML = loops.map(loop => `
+        <tr data-tip="${loop.sign > 0 ? "Positive feedback loop" : "Negative feedback loop"}">
+          <td>#${loop.id}</td>
+          <td>${loop.length}</td>
+          <td><span class="pill ${loop.sign > 0 ? "pos" : "neg"}">${loop.sign > 0 ? "positive" : "negative"}</span></td>
+          <td>${renderLoopPath(loop.subject)}</td>
+        </tr>`).join("");
+      $("#loopTableView").classList.toggle("hidden", state.loopView !== "table");
+      $("#loopNetworkView").classList.toggle("hidden", state.loopView !== "network");
+      if (state.loopView === "network") renderLoopNetwork(loops);
+      bindTips();
+      renderMetrics();
+      renderLoopSummary();
+      renderAnalysis();
+      renderEdgeAnalysis();
+    }
+
+    function renderLoopSummary() {
+      const loops = getFilteredLoops($("#includeSelf").checked);
+      const byLength = new Map();
+      loops.forEach(loop => {
+        const row = byLength.get(loop.length) || { length: loop.length, total: 0, pos: 0, neg: 0 };
+        row.total++;
+        if (loop.sign > 0) row.pos++; else row.neg++;
+        byLength.set(loop.length, row);
+      });
+      const rows = Array.from(byLength.values()).sort((a, b) => a.length - b.length);
+      const total = loops.length;
+      const pos = loops.filter(loop => loop.sign > 0).length;
+      const neg = loops.filter(loop => loop.sign < 0).length;
+      const maxLength = rows.length ? Math.max(...rows.map(row => row.length)) : 0;
+      $("#loopSummaryScope").textContent = $("#includeSelf").checked ? "all filtered loops" : "multi-node loops";
+      $("#loopSummaryCards").innerHTML = [
+        summaryChip("Total", total),
+        summaryChip("Positive", pos),
+        summaryChip("Negative", neg),
+        summaryChip("Max length", maxLength)
+      ].join("");
+      $("#loopSummaryTable").innerHTML = rows.map(row => `
+        <tr data-tip="Length ${row.length}: ${row.total} total, ${row.pos} positive, ${row.neg} negative">
+          <td>Length ${row.length}</td>
+          <td>${row.total}</td>
+          <td>${row.pos}</td>
+          <td>${row.neg}</td>
+        </tr>`).join("");
+      bindTips();
+    }
+
+    function summaryChip(label, value) {
+      return `<article class="summary-chip"><span>${label}</span><strong>${value}</strong></article>`;
+    }
+
+    function renderLoopNetwork(loops) {
+      const el = $("#loopCanvas");
+      const sorted = [...loops].sort((a, b) => a.length - b.length || a.id - b.id);
+      el.innerHTML = sorted.map(loop => {
+        const signClass = loop.sign > 0 ? "pos" : "neg";
+        return `<article class="loop-card ${state.loopEdit ? "editing" : ""}" data-loop-id="${loop.id}">
+          <header>
+            <strong>#${loop.id} · length ${loop.length}</strong>
+            <span class="export-controls">
+              <span class="pill ${signClass}">${loop.sign > 0 ? "positive" : "negative"}</span>
+              <button class="export-btn" data-loop-export="${loop.id}" data-export-format="svg">SVG</button>
+              <button class="export-btn" data-loop-export="${loop.id}" data-export-format="png">PNG</button>
+              <button class="export-btn" data-loop-export="${loop.id}" data-export-format="jpg">JPG</button>
+            </span>
+          </header>
+          ${loopSvg(loop)}
+        </article>`;
+      }).join("");
+      sorted.forEach(loop => attachLoopInteractions(loop));
+      bindTips();
+    }
+
+    function renderAnalysis() {
+      const loops = getFilteredLoops($("#includeSelf").checked);
+      const counts = data.labels.map(label => ({ label, pos: 0, neg: 0, total: 0 }));
+      loops.forEach(loop => {
+        new Set(loop.ids.slice(0, -1)).forEach(id => {
+          const row = counts[id - 1];
+          row.total++;
+          if (loop.sign > 0) row.pos++; else row.neg++;
+        });
+      });
+      counts.sort((a, b) => b.total - a.total || a.label.localeCompare(b.label));
+      const max = Math.max(1, ...counts.map(c => c.total));
+      $("#analysisScope").textContent = $("#includeSelf").checked ? "all filtered loops" : "multi-node loops";
+      $("#analysisBars").innerHTML = counts.map(c => `
+        <div class="bar-row" data-tip="${c.label}: ${c.pos} positive, ${c.neg} negative">
+          <strong>${c.label}</strong>
+          <div class="bar">
+            <span class="pos" style="width:${c.pos / max * 100}%"></span>
+            <span class="neg" style="width:${c.neg / max * 100}%"></span>
+          </div>
+          <span>${c.total}</span>
+        </div>`).join("");
+      bindTips();
+    }
+
+    function renderEdgeAnalysis() {
+      const loops = getFilteredLoops($("#includeSelf").checked);
+      const counts = new Map();
+      loops.forEach(loop => {
+        const seen = new Set();
+        for (let i = 0; i < loop.ids.length - 1; i++) {
+          const source = byId(loop.ids[i]);
+          const target = byId(loop.ids[i + 1]);
+          const key = `${source}->${target}`;
+          if (seen.has(key)) continue;
+          seen.add(key);
+          const row = counts.get(key) || {
+            source,
+            target,
+            edge: `${source} → ${target}`,
+            sign: edgeSign(source, target) || loop.sign,
+            pos: 0,
+            neg: 0,
+            total: 0,
+            weighted: 0
+          };
+          row.total++;
+          row.weighted += 1 / loop.length;
+          if (loop.sign > 0) row.pos++; else row.neg++;
+          counts.set(key, row);
+        }
+      });
+      const rows = Array.from(counts.values()).sort((a, b) => b.total - a.total || b.weighted - a.weighted || a.edge.localeCompare(b.edge));
+      const max = Math.max(1, ...rows.map(c => c.total));
+      $("#edgeAnalysisScope").textContent = $("#includeSelf").checked ? "all filtered loops" : "multi-node loops";
+      $("#edgeAnalysisBars").innerHTML = rows.map(c => `
+        <div class="bar-row" data-tip="${c.edge}: ${c.pos} positive loops, ${c.neg} negative loops; direct sign ${c.sign > 0 ? "positive" : "negative"}">
+          <strong>${c.edge}</strong>
+          <div class="bar">
+            <span class="pos" style="width:${c.pos / max * 100}%"></span>
+            <span class="neg" style="width:${c.neg / max * 100}%"></span>
+          </div>
+          <span>${c.total}</span>
+        </div>`).join("");
+      bindTips();
+    }
+
+    function getEdges(m) {
+      const edges = [];
+      data.labels.forEach((target, r) => {
+        data.labels.forEach((source, c) => {
+          const sign = m[r][c];
+          if (sign) edges.push({ source, target, sign });
+        });
+      });
+      return edges;
+    }
+
+    function edgeSign(source, target) {
+      return matrix()[labelIndex(target)][labelIndex(source)];
+    }
+
+    function getFilteredLoops(includeSelf) {
+      const q = $("#loopSearch").value.toLowerCase();
+      const sign = $("#signFilter").value;
+      const length = $("#lengthFilter").value;
+      return data.loops.map(([id, ids, len, sg, subject]) => ({ id, ids, length: len, sign: sg, subject }))
+        .filter(l => includeSelf || l.length > 1)
+        .filter(l => sign === "all" || (sign === "positive" ? l.sign > 0 : l.sign < 0))
+        .filter(l => length === "all" || String(l.length) === length)
+        .filter(l => l.subject.toLowerCase().includes(q));
+    }
+
+    function renderLoopPath(subject) {
+      const tokens = subject.split(/\s+(->|-\|)\s+/);
+      const html = tokens.map(token => {
+        if (token === "->") return `<span class="pill pos">→</span>`;
+        if (token === "-|") return `<span class="pill neg">⊣</span>`;
+        return `<span>${escapeHtml(token)}</span>`;
+      }).join("");
+      return `<span class="loop-path">${html}</span>`;
+    }
+
+    function renderMathEquation(name, latex) {
+      return `
+        <span class="frac"><span class="num">d</span><span class="den">dt</span></span><span>${escapeHtml(name)}</span>
+        <span>=</span>
+        <span>${formatMath(latex)}</span>`;
+    }
+
+    function formatMath(latex) {
+      return escapeHtml(latex)
+        .replace(/\\frac\{([^{}]+)\}\{([^{}]+)\}/g, '<span class="frac"><span class="num">$1</span><span class="den">$2</span></span>')
+        .replace(/([A-Za-z]+)_\{([^{}]+)\}/g, '$1<sub>$2</sub>')
+        .replace(/([A-Za-z]+)_([A-Za-z0-9]+)/g, '$1<sub>$2</sub>')
+        .replace(/\^(\{([^{}]+)\}|([A-Za-z0-9]+))/g, '<sup>$2$3</sup>')
+        .replace(/\*/g, "·")
+        .replace(/-/g, "−");
+    }
+
+    function edgeSvgPath(e, positions, focus, weighted = false, options = {}) {
+      const s = positions[e.source], t = positions[e.target];
+      const active = !focus || e.source === focus || e.target === focus;
+      if (!s || !t) return "";
+      const self = e.source === e.target;
+      const tip = weighted
+        ? `${e.source} to ${e.target}: ${e.count} loop paths (${e.pos} positive loops, ${e.neg} negative loops)`
+        : `${e.source} ${e.sign > 0 ? "activates" : "inhibits"} ${e.target}`;
+      if (self) {
+        return `<path class="edge ${edgeClass(e, active, options)} ${edgeHighlightClass(e, options)}" data-source="${e.source}" data-target="${e.target}" data-sign="${e.sign}" onpointerdown="handleLoopEdgePointer(event, '${e.source}', '${e.target}')" onclick="handleLoopEdgePointer(event, '${e.source}', '${e.target}')" data-tip="${tip}" d="${edgePathD(e, positions, options)}" />`;
+      }
+      return `<path class="edge ${edgeClass(e, active, options)} ${edgeHighlightClass(e, options)}" data-source="${e.source}" data-target="${e.target}" data-sign="${e.sign}" onpointerdown="handleLoopEdgePointer(event, '${e.source}', '${e.target}')" onclick="handleLoopEdgePointer(event, '${e.source}', '${e.target}')" data-tip="${tip}" d="${edgePathD(e, positions, options)}" />`;
+    }
+
+    function edgePathD(e, positions, options = {}) {
+      const s = positions[e.source], t = positions[e.target];
+      if (!s || !t) return "";
+      if (e.source === e.target) {
+        return `M ${s.x + 27} ${s.y - 17} C ${s.x + 69} ${s.y - 53}, ${s.x + 79} ${s.y + 24}, ${s.x + 31} ${s.y + 21}`;
+      }
+      const dx = t.x - s.x;
+      const dy = t.y - s.y;
+      const len = Math.max(1, Math.hypot(dx, dy));
+      const sx = s.x + dx / len * 49;
+      const sy = s.y + dy / len * 24;
+      const tx = t.x - dx / len * 53;
+      const ty = t.y - dy / len * 27;
+      const curve = options.curve ?? .1;
+      const baseX = (sx + tx) / 2;
+      const baseY = (sy + ty) / 2;
+      let mx = baseX - dy * curve;
+      let my = baseY + dx * curve;
+      if (options.center) {
+        const altX = baseX + dy * curve;
+        const altY = baseY - dx * curve;
+        const d1 = Math.hypot(mx - options.center.x, my - options.center.y);
+        const d2 = Math.hypot(altX - options.center.x, altY - options.center.y);
+        if (d2 > d1) {
+          mx = altX;
+          my = altY;
+        }
+      }
+      return `M ${sx} ${sy} Q ${mx} ${my} ${tx} ${ty}`;
+    }
+
+    function edgeClass(e, active, options = {}) {
+      const markerClass = e.sign > 0 ? "pos" : "neg";
+      const loopClass = options.loopSign ? (options.loopSign > 0 ? "loop-positive" : "loop-negative") : "";
+      return `${markerClass} ${loopClass} ${active ? "" : "dim"}`;
+    }
+
+    function edgeHighlightClass(edge, options = {}) {
+      if (options.graph) return graphEdgeHighlightClass(edge);
+      return loopHighlightClass(edge);
+    }
+
+    function hasGraphHighlight() {
+      return state.selectedGraphNodes.size > 0;
+    }
+
+    function graphEdgeHighlightClass(edge) {
+      if (!hasGraphHighlight()) return "";
+      return state.selectedGraphNodes.has(edge.source) || state.selectedGraphNodes.has(edge.target) ? "highlight-hit" : "highlight-miss";
+    }
+
+    function graphNodeHighlightClass(label) {
+      if (!hasGraphHighlight()) return "";
+      if (state.selectedGraphNodes.has(label)) return "highlight-hit";
+      const connected = Array.from(state.selectedGraphNodes).some(selected => edgeSign(label, selected) || edgeSign(selected, label));
+      return connected ? "highlight-hit" : "highlight-miss";
+    }
+
+    function handleGraphNodePointer(event, label) {
+      if (state.graphEdit) return;
+      event.preventDefault();
+      event.stopPropagation();
+      if (state.selectedGraphNodes.has(label)) state.selectedGraphNodes.delete(label);
+      else state.selectedGraphNodes.add(label);
+      renderGraph();
+    }
+
+    window.handleGraphNodePointer = handleGraphNodePointer;
+
+    function loopSvg(loop) {
+      const w = 420;
+      const h = 190;
+      const ids = loop.ids;
+      const labels = ids.slice(0, -1).map(byId);
+      const positions = state.loopPositions[loop.id] || {};
+      const n = labels.length;
+      labels.forEach((label, i) => {
+        if (positions[label]) return;
+        if (n === 1) {
+          positions[label] = { x: w / 2, y: 92 };
+        } else {
+          const cx = w / 2;
+          const cy = 95;
+          const rx = n <= 3 ? 105 : n === 4 ? 122 : 150;
+          const ry = n <= 3 ? 46 : n === 4 ? 56 : 64;
+          const angle = Math.PI + i * Math.PI * 2 / n;
+          positions[label] = { x: cx + Math.cos(angle) * rx, y: cy + Math.sin(angle) * ry };
+        }
+      });
+      state.loopPositions[loop.id] = positions;
+      const transform = state.loopTransforms[loop.id] || (state.loopTransforms[loop.id] = { x: 0, y: 0, k: 1 });
+      const edges = [];
+      for (let i = 0; i < ids.length - 1; i++) {
+        edges.push({ source: byId(ids[i]), target: byId(ids[i + 1]), sign: edgeSign(byId(ids[i]), byId(ids[i + 1])) || loop.sign });
+      }
+      const edgeSvg = edges.map((e, i) => edgeSvgPath(e, positions, "", false, n <= 2 ? { loopSign: loop.sign, curve: .16 } : { loopSign: loop.sign, curve: .18, center: { x: w / 2, y: 95 } })).join("");
+      const nodeSvg = labels.map(label => loopNode(label, positions[label], loop.sign)).join("");
+      const highlightClass = hasLoopHighlight() ? "has-highlight" : "";
+      return svgFrame(w, h, viewportSvg(edgeSvg + nodeSvg, transform), `Loop #${loop.id}`, highlightClass);
+    }
+
+    function hasLoopHighlight() {
+      return state.selectedLoopNodes.size > 0 || state.selectedLoopEdges.size > 0;
+    }
+
+    function loopEdgeKey(source, target) {
+      return `${source}->${target}`;
+    }
+
+    function loopHighlightClass(edge) {
+      if (!hasLoopHighlight()) return "";
+      const edgeHit = state.selectedLoopEdges.has(loopEdgeKey(edge.source, edge.target));
+      const nodeHit = state.selectedLoopNodes.has(edge.source) || state.selectedLoopNodes.has(edge.target);
+      return edgeHit || nodeHit ? "highlight-hit" : "highlight-miss";
+    }
+
+    function loopNodeHighlightClass(label) {
+      if (!hasLoopHighlight()) return "";
+      const edgeHit = Array.from(state.selectedLoopEdges).some(key => {
+        const [source, target] = key.split("->");
+        return source === label || target === label;
+      });
+      return state.selectedLoopNodes.has(label) || edgeHit ? "highlight-hit" : "highlight-miss";
+    }
+
+    function handleLoopNodePointer(event, label) {
+      if (state.loopEdit) return;
+      event.preventDefault();
+      event.stopPropagation();
+      toggleLoopNode(label);
+    }
+
+    function handleLoopEdgePointer(event, source, target) {
+      if (state.loopEdit) return;
+      event.preventDefault();
+      event.stopPropagation();
+      toggleLoopEdge(source, target);
+    }
+
+    window.handleLoopNodePointer = handleLoopNodePointer;
+    window.handleLoopEdgePointer = handleLoopEdgePointer;
+
+    function toggleLoopNode(label) {
+      if (state.selectedLoopNodes.has(label)) state.selectedLoopNodes.delete(label);
+      else state.selectedLoopNodes.add(label);
+      renderLoops();
+    }
+
+    function toggleLoopEdge(source, target) {
+      const key = loopEdgeKey(source, target);
+      if (state.selectedLoopEdges.has(key)) state.selectedLoopEdges.delete(key);
+      else state.selectedLoopEdges.add(key);
+      renderLoops();
+    }
+
+    function loopNode(label, p, sign) {
+      const color = sign > 0 ? "var(--green)" : "var(--purple)";
+      return `<g class="node ${loopNodeHighlightClass(label)}" data-label="${label}" onpointerdown="handleLoopNodePointer(event, '${label}')" onclick="handleLoopNodePointer(event, '${label}')" data-tip="${label} in ${sign > 0 ? "positive" : "negative"} loop" transform="translate(${p.x - 42}, ${p.y - 20})">
+        <rect width="84" height="40" fill="${color}" onpointerdown="handleLoopNodePointer(event, '${label}')" onclick="handleLoopNodePointer(event, '${label}')"></rect>
+        <text x="42" y="25" text-anchor="middle">${label}</text>
+      </g>`;
+    }
+
+    function nodeSvgBlock(label, p, i, focus) {
+      const color = i % 3 === 0 ? "var(--purple)" : i % 3 === 1 ? "var(--green)" : "var(--olive)";
+      const dim = focus && focus !== label ? .35 : 1;
+      const participation = getFilteredLoops(false).filter(l => l.ids.includes(labelIndex(label) + 1)).length;
+      return `<g class="node ${graphNodeHighlightClass(label)}" data-label="${label}" onpointerdown="handleGraphNodePointer(event, '${label}')" onclick="handleGraphNodePointer(event, '${label}')" data-tip="${label}: appears in ${participation} multi-node filtered loops" transform="translate(${p.x - 42}, ${p.y - 20})" opacity="${dim}">
+        <rect width="84" height="40" fill="${color}" onpointerdown="handleGraphNodePointer(event, '${label}')" onclick="handleGraphNodePointer(event, '${label}')"></rect>
+        <text x="42" y="25" text-anchor="middle">${label}</text>
+      </g>`;
+    }
+
+    function svgFrame(w, h, content, label = "LoopDetect interaction graph", className = "") {
+      return `<svg class="${className}" viewBox="0 0 ${w} ${h}" role="img" aria-label="${label}">
+        <defs>
+          <marker id="arrowPos" viewBox="0 0 14 14" refX="11.2" refY="7" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+            <path d="M 2 2.5 L 12 7 L 2 11.5 z" fill="var(--green)" stroke="var(--green)" stroke-width=".45"></path>
+          </marker>
+          <marker id="barNeg" viewBox="0 0 18 18" refX="13.2" refY="9" markerWidth="9" markerHeight="9" orient="auto">
+            <path d="M 1.5 9 L 11 9 M 13.5 3 L 13.5 15" stroke="var(--purple)" stroke-width="2.2" stroke-linecap="round" fill="none"></path>
+          </marker>
+        </defs>
+        ${content}
+      </svg>`;
+    }
+
+    function viewportSvg(content, transform) {
+      return `<g class="viewport" transform="translate(${transform.x} ${transform.y}) scale(${transform.k})">${content}</g>`;
+    }
+
+    function applyViewport(svg, transform) {
+      svg?.querySelector(".viewport")?.setAttribute("transform", `translate(${transform.x} ${transform.y}) scale(${transform.k})`);
+    }
+
+    function svgPoint(svg, event) {
+      const rect = svg.getBoundingClientRect();
+      const [,, w, h] = svg.getAttribute("viewBox").split(/\s+/).map(Number);
+      return {
+        x: (event.clientX - rect.left) / rect.width * w,
+        y: (event.clientY - rect.top) / rect.height * h
+      };
+    }
+
+    function contentPoint(svg, transform, event) {
+      const p = svgPoint(svg, event);
+      return { x: (p.x - transform.x) / transform.k, y: (p.y - transform.y) / transform.k };
+    }
+
+    function zoomTransform(transform, factor, center) {
+      const oldK = transform.k;
+      const newK = Math.min(3.5, Math.max(.45, oldK * factor));
+      transform.x = center.x - (center.x - transform.x) * (newK / oldK);
+      transform.y = center.y - (center.y - transform.y) * (newK / oldK);
+      transform.k = newK;
+    }
+
+    function attachPanZoom(svg, transform, apply, options) {
+      if (!svg) return;
+      let drag = null;
+      svg.addEventListener("wheel", event => {
+        if (!options.editEnabled()) return;
+        event.preventDefault();
+        zoomTransform(transform, event.deltaY < 0 ? 1.12 : .88, svgPoint(svg, event));
+        apply();
+      }, { passive: false });
+      svg.addEventListener("pointerdown", event => {
+        if (!options.editEnabled()) return;
+        const node = event.target.closest?.(".node");
+        if (node) {
+          const label = node.dataset.label;
+          drag = { type: "node", label, start: contentPoint(svg, transform, event) };
+        } else {
+          drag = { type: "pan", start: svgPoint(svg, event), x: transform.x, y: transform.y };
+        }
+        svg.setPointerCapture?.(event.pointerId);
+      });
+      svg.addEventListener("pointermove", event => {
+        if (!drag) return;
+        if (drag.type === "pan") {
+          const p = svgPoint(svg, event);
+          transform.x = drag.x + p.x - drag.start.x;
+          transform.y = drag.y + p.y - drag.start.y;
+          apply();
+        } else {
+          const p = contentPoint(svg, transform, event);
+          options.positions[drag.label] = p;
+          svg.querySelector(`.node[data-label="${cssEscape(drag.label)}"]`)?.setAttribute("transform", `translate(${p.x - 42} ${p.y - 20})`);
+          options.rerenderPaths();
+        }
+      });
+      svg.addEventListener("pointerup", () => { drag = null; });
+      svg.addEventListener("pointercancel", () => { drag = null; });
+    }
+
+    function updateGraphPaths(svg, positions, edges, focus) {
+      edges.forEach(e => {
+        const path = svg.querySelector(`path[data-source="${cssEscape(e.source)}"][data-target="${cssEscape(e.target)}"]`);
+        path?.setAttribute("d", edgePathD(e, positions, { graph: true }));
+      });
+    }
+
+    function updateLoopPaths(svg, positions) {
+      const n = Object.keys(positions).length;
+      const pathOptions = n <= 2 ? { curve: .16 } : { curve: .18, center: { x: 210, y: 95 } };
+      svg.querySelectorAll("path.edge").forEach(path => {
+        const e = { source: path.dataset.source, target: path.dataset.target, sign: Number(path.dataset.sign) };
+        path.setAttribute("d", edgePathD(e, positions, pathOptions));
+      });
+    }
+
+    function attachLoopInteractions(loop) {
+      const card = document.querySelector(`.loop-card[data-loop-id="${loop.id}"]`);
+      const svg = card?.querySelector("svg");
+      const transform = state.loopTransforms[loop.id];
+      const positions = state.loopPositions[loop.id];
+      attachPanZoom(svg, transform, () => applyViewport(svg, transform), {
+        editEnabled: () => state.loopEdit,
+        positions,
+        rerenderPaths: () => updateLoopPaths(svg, positions)
+      });
+      svg?.querySelectorAll(".node").forEach(node => {
+        node.addEventListener("pointerdown", event => {
+          if (state.loopEdit) return;
+          event.preventDefault();
+          event.stopPropagation();
+          toggleLoopNode(node.dataset.label);
+        });
+      });
+      svg?.querySelectorAll("path.edge").forEach(edge => {
+        edge.addEventListener("pointerdown", event => {
+          if (state.loopEdit) return;
+          event.preventDefault();
+          event.stopPropagation();
+          toggleLoopEdge(edge.dataset.source, edge.dataset.target);
+        });
+      });
+    }
+
+    function handleZoomButton(target, action) {
+      const factor = action === "in" ? 1.18 : action === "out" ? .85 : 1;
+      if (target === "graph") {
+        if (action === "reset") {
+          state.graphTransform = { x: 0, y: 0, k: 1 };
+          state.graphPositions = {};
+          state.selectedGraphNodes.clear();
+        }
+        else zoomTransform(state.graphTransform, factor, { x: 400, y: 230 });
+        renderGraph();
+        return;
+      }
+      Object.keys(state.loopTransforms).forEach(id => {
+        if (action === "reset") state.loopTransforms[id] = { x: 0, y: 0, k: 1 };
+        else zoomTransform(state.loopTransforms[id], factor, { x: 210, y: 95 });
+      });
+      if (action === "reset") {
+        state.loopPositions = {};
+        state.selectedLoopNodes.clear();
+        state.selectedLoopEdges.clear();
+      }
+      if (state.loopView === "network") renderLoops();
+    }
+
+    async function handleExportButton(button) {
+      const format = button.dataset.exportFormat;
+      const loopId = button.dataset.loopExport;
+      if (loopId) {
+        const svg = document.querySelector(`.loop-card[data-loop-id="${loopId}"] svg`);
+        await exportSvg(svg, `${data.model}_loop_${loopId}`, format);
+        return;
+      }
+      const target = button.dataset.exportTarget;
+      if (target === "graph") {
+        await exportSvg($("#graphCanvas svg"), `${data.model}_interaction_graph`, format);
+      } else if (target === "node-analysis") {
+        await exportDom($("#analysisBars"), `${data.model}_loops_containing_node`, format);
+      } else if (target === "edge-analysis") {
+        await exportDom($("#edgeAnalysisBars"), `${data.model}_loops_containing_edge`, format);
+      }
+    }
+
+    async function exportSvg(svg, filename, format) {
+      if (!svg) return;
+      await saveSvgSource(serializeSvg(svg), filename, format);
+    }
+
+    async function exportDom(element, filename, format) {
+      if (!element) return;
+      const rect = element.getBoundingClientRect();
+      const width = Math.max(320, Math.ceil(rect.width));
+      const height = Math.max(80, Math.ceil(rect.height));
+      const clone = element.cloneNode(true);
+      const source = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">
+        <style>${exportCss()}</style>
+        <rect width="100%" height="100%" fill="#fffef8"></rect>
+        <foreignObject width="100%" height="100%">
+          <div xmlns="http://www.w3.org/1999/xhtml" style="box-sizing:border-box;width:${width}px;min-height:${height}px;padding:14px;background:#fffef8;color:#272735;font-family:Arial,sans-serif;">
+            ${clone.outerHTML}
+          </div>
+        </foreignObject>
+      </svg>`;
+      await saveSvgSource(source, filename, format);
+    }
+
+    function serializeSvg(svg) {
+      const clone = svg.cloneNode(true);
+      clone.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+      const [,, viewW, viewH] = (clone.getAttribute("viewBox") || "0 0 800 460").split(/\s+/).map(Number);
+      clone.setAttribute("width", viewW || 800);
+      clone.setAttribute("height", viewH || 460);
+      const source = new XMLSerializer().serializeToString(clone);
+      return source.replace(/<svg([^>]*)>/, `<svg$1><style>${exportCss()}</style><rect width="100%" height="100%" fill="#fffef8"></rect>`);
+    }
+
+    function exportCss() {
+      return document.querySelector("style")?.textContent || "";
+    }
+
+    async function saveSvgSource(source, filename, format) {
+      const safeName = filename.replace(/[^a-z0-9_-]+/gi, "_");
+      if (format === "svg") {
+        downloadBlob(new Blob([source], { type: "image/svg+xml;charset=utf-8" }), `${safeName}.svg`);
+        return;
+      }
+      const blob = new Blob([source], { type: "image/svg+xml;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      try {
+        const img = await loadImage(url);
+        const canvas = document.createElement("canvas");
+        canvas.width = img.naturalWidth || img.width;
+        canvas.height = img.naturalHeight || img.height;
+        const ctx = canvas.getContext("2d");
+        ctx.fillStyle = "#fffef8";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(img, 0, 0);
+        const type = format === "jpg" ? "image/jpeg" : "image/png";
+        canvas.toBlob(out => downloadBlob(out, `${safeName}.${format}`), type, .95);
+      } finally {
+        URL.revokeObjectURL(url);
+      }
+    }
+
+    function loadImage(url) {
+      return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => resolve(img);
+        img.onerror = reject;
+        img.src = url;
+      });
+    }
+
+    function downloadBlob(blob, filename) {
+      if (!blob) return;
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 500);
+    }
+
+    function cssEscape(value) {
+      return String(value).replace(/["\\]/g, "\\$&");
+    }
+
+    function populateFilters() {
+      $("#focusNode").innerHTML += data.labels.map(l => `<option value="${l}">${l}</option>`).join("");
+      const lengths = [...new Set(data.loops.map(l => l[2]))].sort((a, b) => a - b);
+      $("#lengthFilter").innerHTML += lengths.map(l => `<option value="${l}">Length ${l}</option>`).join("");
+    }
+
+    function bindEvents() {
+      $("#stageSelect").addEventListener("change", e => { state.stage = e.target.value; renderMatrix(); renderGraph(); });
+      $("#focusNode").addEventListener("change", renderGraph);
+      $("#graphEdit").addEventListener("change", e => { state.graphEdit = e.target.checked; renderGraph(); });
+      $("#loopEdit").addEventListener("change", e => { state.loopEdit = e.target.checked; if (state.loopView === "network") renderLoops(); });
+      $("#paramSearch").addEventListener("input", renderSummaryTable);
+      $("#summaryMode").addEventListener("change", renderSummaryTable);
+      $("#loopSearch").addEventListener("input", renderLoops);
+      $("#signFilter").addEventListener("change", renderLoops);
+      $("#lengthFilter").addEventListener("change", renderLoops);
+      $("#includeSelf").addEventListener("change", renderLoops);
+      $("#sortByName").addEventListener("click", () => { state.order.sort((a, b) => a.localeCompare(b)); renderAll(); });
+      $("#sortByLoops").addEventListener("click", () => {
+        const counts = new Map();
+        getFilteredLoops(false).forEach(l => l.ids.forEach(id => counts.set(byId(id), (counts.get(byId(id)) || 0) + 1)));
+        state.order.sort((a, b) => (counts.get(b) || 0) - (counts.get(a) || 0));
+        renderAll();
+      });
+      $("#resetOrder").addEventListener("click", () => { state.order = [...data.labels]; renderAll(); });
+      $("#exportJson").addEventListener("click", exportJson);
+      $$("[data-zoom-target]").forEach(btn => btn.addEventListener("click", () => handleZoomButton(btn.dataset.zoomTarget, btn.dataset.zoom)));
+      $$(".tab").forEach(tab => tab.addEventListener("click", () => {
+        $$(".tab").forEach(t => t.classList.remove("active"));
+        tab.classList.add("active");
+        state.loopView = tab.dataset.view;
+        renderLoops();
+      }));
+      $$("th[data-sort]").forEach(th => th.addEventListener("click", () => {
+        const key = th.dataset.sort;
+        state.sort.dir = state.sort.key === key ? -state.sort.dir : 1;
+        state.sort.key = key;
+        renderLoops();
+      }));
+      document.addEventListener("click", event => {
+        const button = event.target.closest("[data-export-format]");
+        if (button) handleExportButton(button);
+      });
+      window.addEventListener("resize", () => { renderGraph(); if (state.loopView === "network") renderLoops(); });
+      document.addEventListener("scroll", setActiveNav, { passive: true });
+    }
+
+    function bindDrag() {
+      let dragged = null;
+      $$(".tag").forEach(tag => {
+        tag.addEventListener("dragstart", () => { dragged = tag.dataset.label; tag.classList.add("dragging"); });
+        tag.addEventListener("dragend", () => tag.classList.remove("dragging"));
+        tag.addEventListener("dragover", e => e.preventDefault());
+        tag.addEventListener("drop", e => {
+          e.preventDefault();
+          const target = tag.dataset.label;
+          if (!dragged || dragged === target) return;
+          const from = state.order.indexOf(dragged);
+          const to = state.order.indexOf(target);
+          state.order.splice(from, 1);
+          state.order.splice(to, 0, dragged);
+          renderAll();
+        });
+      });
+    }
+
+    function bindTips() {
+      const tooltip = $("#tooltip");
+      $$("[data-tip]").forEach(el => {
+        el.onmouseenter = e => {
+          tooltip.textContent = el.dataset.tip;
+          tooltip.classList.remove("hidden");
+          moveTip(e);
+        };
+        el.onmousemove = moveTip;
+        el.onmouseleave = () => tooltip.classList.add("hidden");
+      });
+      function moveTip(e) {
+        tooltip.style.left = `${Math.min(e.clientX + 14, window.innerWidth - 340)}px`;
+        tooltip.style.top = `${e.clientY + 14}px`;
+      }
+    }
+
+    function exportJson() {
+      const payload = JSON.stringify({ model: data.model, order: state.order, stage: state.stage, loops: getFilteredLoops($("#includeSelf").checked) }, null, 2);
+      navigator.clipboard?.writeText(payload);
+      $("#toast").classList.add("show");
+      setTimeout(() => $("#toast").classList.remove("show"), 1600);
+    }
+
+    function setActiveNav() {
+      const ids = ["summary", "odes", "graph", "matrix", "loops", "analysis"];
+      let current = "summary";
+      ids.forEach(id => {
+        if (document.getElementById(id).getBoundingClientRect().top < 120) current = id;
+      });
+      $$("#nav a").forEach(a => a.classList.toggle("active", a.getAttribute("href") === `#${current}`));
+    }
+
+    function escapeHtml(str) {
+      return String(str).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+    }
+
+    init();
+  </script>
+</body>
+</html>
