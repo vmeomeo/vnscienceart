@@ -1192,7 +1192,7 @@
       const pos = loops.filter(loop => loop.sign > 0).length;
       const neg = loops.filter(loop => loop.sign < 0).length;
       const maxLength = rows.length ? Math.max(...rows.map(row => row.length)) : 0;
-      $("#loopSummaryScope").textContent = $("#includeSelf").checked ? "all filtered loops" : "multi-node loops";
+      $("#loopSummaryScope").textContent = `${$("#includeSelf").checked ? "all filtered loops" : "multi-node loops"} · ${selectedStageLabel()}`;
       $("#loopSummaryCards").innerHTML = [
         summaryChip("Total", total),
         summaryChip("Positive", pos),
@@ -1247,7 +1247,7 @@
       });
       counts.sort((a, b) => b.total - a.total || a.label.localeCompare(b.label));
       const max = Math.max(1, ...counts.map(c => c.total));
-      $("#analysisScope").textContent = $("#includeSelf").checked ? "all filtered loops" : "multi-node loops";
+      $("#analysisScope").textContent = `${$("#includeSelf").checked ? "all filtered loops" : "multi-node loops"} · ${selectedStageLabel()}`;
       $("#analysisBars").innerHTML = counts.map(c => `
         <div class="bar-row" data-tip="${c.label}: ${c.pos} positive, ${c.neg} negative">
           <strong>${c.label}</strong>
@@ -1289,7 +1289,7 @@
       });
       const rows = Array.from(counts.values()).sort((a, b) => b.total - a.total || b.weighted - a.weighted || a.edge.localeCompare(b.edge));
       const max = Math.max(1, ...rows.map(c => c.total));
-      $("#edgeAnalysisScope").textContent = $("#includeSelf").checked ? "all filtered loops" : "multi-node loops";
+      $("#edgeAnalysisScope").textContent = `${$("#includeSelf").checked ? "all filtered loops" : "multi-node loops"} · ${selectedStageLabel()}`;
       $("#edgeAnalysisBars").innerHTML = rows.map(c => `
         <div class="bar-row" data-tip="${c.edge}: ${c.pos} positive loops, ${c.neg} negative loops; direct sign ${c.sign > 0 ? "positive" : "negative"}">
           <strong>${c.edge}</strong>
@@ -1317,17 +1317,80 @@
       return matrix()[labelIndex(target)][labelIndex(source)];
     }
 
+    function currentLoops() {
+      const key = state.stage;
+      state.loopCache = state.loopCache || {};
+      if (!state.loopCache[key]) state.loopCache[key] = detectLoops(data.matrices[key]);
+      return state.loopCache[key];
+    }
+
+    function availableLoopLengths() {
+      const lengths = new Set();
+      Object.keys(data.matrices).forEach(stage => detectLoops(data.matrices[stage]).forEach(loop => lengths.add(loop.length)));
+      return [...lengths].sort((a, b) => a - b);
+    }
+
+    function detectLoops(m) {
+      const edges = getEdges(m);
+      const adjacency = new Map(data.labels.map(label => [label, []]));
+      edges.forEach(edge => adjacency.get(edge.source)?.push(edge));
+      adjacency.forEach(list => list.sort((a, b) => labelIndex(a.target) - labelIndex(b.target) || a.target.localeCompare(b.target)));
+      const loops = [];
+      data.labels.forEach((start, startIdx) => {
+        const startId = startIdx + 1;
+        const visited = new Set([start]);
+        (adjacency.get(start) || []).forEach(edge => {
+          const targetIdx = labelIndex(edge.target);
+          if (edge.target === start) {
+            loops.push(makeLoop([startId, startId], m));
+            return;
+          }
+          if (targetIdx < startIdx) return;
+          dfsCycle(start, startIdx, edge.target, [startId, targetIdx + 1], visited, m, adjacency, loops);
+        });
+      });
+      loops.sort((a, b) => a.length - b.length || a.subject.localeCompare(b.subject));
+      return loops.map((loop, i) => ({ ...loop, id: i + 1 }));
+    }
+
+    function dfsCycle(start, startIdx, current, ids, visited, m, adjacency, loops) {
+      visited.add(current);
+      (adjacency.get(current) || []).forEach(edge => {
+        const targetIdx = labelIndex(edge.target);
+        if (edge.target === start && ids.length > 1) {
+          loops.push(makeLoop([...ids, startIdx + 1], m));
+          return;
+        }
+        if (targetIdx < startIdx || visited.has(edge.target)) return;
+        dfsCycle(start, startIdx, edge.target, [...ids, targetIdx + 1], visited, m, adjacency, loops);
+      });
+      visited.delete(current);
+    }
+
+    function makeLoop(ids, m) {
+      let sign = 1;
+      const parts = [];
+      for (let i = 0; i < ids.length - 1; i++) {
+        const source = byId(ids[i]);
+        const target = byId(ids[i + 1]);
+        const edge = m[labelIndex(target)][labelIndex(source)];
+        sign *= edge > 0 ? 1 : -1;
+        parts.push(source, edge > 0 ? "->" : "-|");
+      }
+      parts.push(byId(ids[ids.length - 1]));
+      return { id: 0, ids, length: ids.length - 1, sign, subject: parts.join(" ") };
+    }
+
     function getFilteredLoops(includeSelf) {
       const q = $("#loopSearch").value.toLowerCase();
       const sign = $("#signFilter").value;
       const length = $("#lengthFilter").value;
-      return data.loops.map(([id, ids, len, sg, subject]) => ({ id, ids, length: len, sign: sg, subject }))
+      return currentLoops()
         .filter(l => includeSelf || l.length > 1)
         .filter(l => sign === "all" || (sign === "positive" ? l.sign > 0 : l.sign < 0))
         .filter(l => length === "all" || String(l.length) === length)
         .filter(l => l.subject.toLowerCase().includes(q));
     }
-
     function renderLoopPath(subject) {
       const tokens = subject.split(/\s+(->|-\|)\s+/);
       const html = tokens.map(token => {
@@ -1489,12 +1552,17 @@
 
     window.handleGraphNodePointer = handleGraphNodePointer;
 
+    function loopStateKey(loop) {
+      return `${state.stage}:${loop.id}`;
+    }
+
     function loopSvg(loop) {
       const w = 420;
       const h = 190;
       const ids = loop.ids;
       const labels = ids.slice(0, -1).map(byId);
-      const positions = state.loopPositions[loop.id] || {};
+      const key = loopStateKey(loop);
+      const positions = state.loopPositions[key] || {};
       const n = labels.length;
       labels.forEach((label, i) => {
         if (positions[label]) return;
@@ -1509,8 +1577,8 @@
           positions[label] = { x: cx + Math.cos(angle) * rx, y: cy + Math.sin(angle) * ry };
         }
       });
-      state.loopPositions[loop.id] = positions;
-      const transform = state.loopTransforms[loop.id] || (state.loopTransforms[loop.id] = { x: 0, y: 0, k: 1 });
+      state.loopPositions[key] = positions;
+      const transform = state.loopTransforms[key] || (state.loopTransforms[key] = { x: 0, y: 0, k: 1 });
       const edges = [];
       for (let i = 0; i < ids.length - 1; i++) {
         edges.push({ source: byId(ids[i]), target: byId(ids[i + 1]), sign: edgeSign(byId(ids[i]), byId(ids[i + 1])) || loop.sign });
@@ -1849,12 +1917,17 @@
 
     function populateFilters() {
       $("#focusNode").innerHTML += data.labels.map(l => `<option value="${l}">${l}</option>`).join("");
-      const lengths = [...new Set(data.loops.map(l => l[2]))].sort((a, b) => a - b);
-      $("#lengthFilter").innerHTML += lengths.map(l => `<option value="${l}">Length ${l}</option>`).join("");
+      renderLengthFilter();
     }
 
+    function renderLengthFilter() {
+      const current = $("#lengthFilter")?.value || "all";
+      const lengths = availableLoopLengths();
+      $("#lengthFilter").innerHTML = `<option value="all">All lengths</option>` + lengths.map(l => `<option value="${l}">Length ${l}</option>`).join("");
+      $("#lengthFilter").value = lengths.map(String).includes(current) ? current : "all";
+    }
     function bindEvents() {
-      $("#stageSelect").addEventListener("change", e => { state.stage = e.target.value; renderMatrix(); renderGraph(); });
+      $("#stageSelect").addEventListener("change", e => { state.stage = e.target.value; renderAll(); });
       $$(".compareToggle").forEach(toggle => toggle.addEventListener("change", e => {
         state.compareTR = e.target.checked;
         $$(".compareToggle").forEach(peer => { peer.checked = state.compareTR; });
