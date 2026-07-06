@@ -749,7 +749,7 @@
       <section class="section" id="odes" style="margin-top:16px">
         <div class="section-header">
           <h2>ODEs</h2>
-          <span class="pill">LaTeX-like display from MATLAB assignments</span>
+          <span class="pill">9 spiecies</span>
         </div>
         <div class="section-body">
           <div id="odeList" class="ode-list"></div>
@@ -943,15 +943,15 @@
         ["IKKi", 0, "inactive IKK pool"]
       ],
       odes: [
-        ["A20", "-p_3 A20 + p_9 mA20", "-param(3)*A20 + param(9)*mA20"],
-        ["mA20", "-p_7 mA20 R_1 + p_{12} nNFkB KO", "-param(7)*mA20*Roquin(1) + param(12)*N*KO"],
-        ["IKK", "TR p_{16} IKKn - p_{18} IKK - TR p_{17} IKK A20 - p_{21} IKK", "TR*param(16)*IKKn - param(18)*IKK - TR*param(17)*IKK*A20 - param(21)*IKK"],
-        ["IkBa", "-p_1 IkBa nNFkB - p_5 IkBa + p_{11} tIkBa + p_{14} nIkBaNFkB", "-param(1)*IkB*N - param(5)*IkB + param(11)*Im + param(14)*IN"],
-        ["nIkBaNFkB", "p_1 IkBa nNFkB - p_6 IKK nIkBaNFkB - p_{14} nIkBaNFkB", "param(1)*IkB*N - param(6)*IKK*IN - param(14)*IN"],
-        ["tIkBa", "-p_8 tIkBa R_2 + p_{13} nNFkB", "-param(8)*Im*Roquin(2) + param(13)*N"],
-        ["nNFkB", "-p_1 IkBa nNFkB + p_6 IKK nIkBaNFkB + p_{14} nIkBaNFkB", "-param(1)*IkB*N + param(6)*IKK*IN + param(14)*IN"],
-        ["IKKn", "p_{19} - p_{20} IKKn - TR p_{16} IKKn", "param(19) - param(20)*IKKn - TR*param(16)*IKKn"],
-        ["IKKi", "p_{18} IKK + TR p_{17} IKK A20 - p_{22} IKKi", "param(18)*IKK + TR*param(17)*IKK*A20 - param(22)*IKKi"]
+        ["A20", "-p_3 . A20 + p_9 . mA20", "-param(3)*A20 + param(9)*mA20"],
+        ["mA20", "-p_7 . mA20 . R_1 + p_{12} . nNFkB", "-param(7)*mA20*Roquin(1) + param(12)*N*KO"],
+        ["IKK", "TR . p_{16} . IKKn - p_{18} . IKK - TR . p_{17} . IKK . A20 - p_{21} . IKK", "TR*param(16)*IKKn - param(18)*IKK - TR*param(17)*IKK*A20 - param(21)*IKK"],
+        ["IkBa", "-p_1 . IkBa . nNFkB - p_5 . IkBa + p_{11} . tIkBa + p_{14} . nIkBaNFkB", "-param(1)*IkB*N - param(5)*IkB + param(11)*Im + param(14)*IN"],
+        ["nIkBaNFkB", "p_1 . IkBa . nNFkB - p_6 . IKK . nIkBaNFkB - p_{14} . nIkBaNFkB", "param(1)*IkB*N - param(6)*IKK*IN - param(14)*IN"],
+        ["tIkBa", "-p_8 . tIkBa . R_2 + p_{13} . nNFkB", "-param(8)*Im*Roquin(2) + param(13)*N"],
+        ["nNFkB", "-p_1 . IkBa . nNFkB + p_6 . IKK . nIkBaNFkB + p_{14} . nIkBaNFkB", "-param(1)*IkB*N + param(6)*IKK*IN + param(14)*IN"],
+        ["IKKn", "p_{19} - p_{20} . IKKn - TR . p_{16} . IKKn", "param(19) - param(20)*IKKn - TR*param(16)*IKKn"],
+        ["IKKi", "p_{18} . IKK + TR . p_{17} . IKK . A20 - p_{22} . IKKi", "param(18)*IKK + TR*param(17)*IKK*A20 - param(22)*IKKi"]
       ],
       matrices: {
         offLate: [
@@ -1096,7 +1096,7 @@
     function renderMatrix() {
       const m = matrix();
       const other = comparisonMatrix();
-      const header = `<tr><th>affected \\ regulator</th>${state.order.map(l => `<th>${l}</th>`).join("")}</tr>`;
+      const header = `<tr><th>target (↓) \\ source (→)</th>${state.order.map(l => `<th>${l}</th>`).join("")}</tr>`;
       const body = state.order.map(rowLabel => {
         const r = labelIndex(rowLabel);
         const cells = state.order.map(colLabel => {

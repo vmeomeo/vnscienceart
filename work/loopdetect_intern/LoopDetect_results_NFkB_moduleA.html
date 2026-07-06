@@ -749,7 +749,7 @@
       <section class="section" id="odes" style="margin-top:16px">
         <div class="section-header">
           <h2>ODEs</h2>
-          <span class="pill">LaTeX-like display from MATLAB assignments</span>
+          <span class="pill"> 7 species</span>
         </div>
         <div class="section-body">
           <div id="odeList" class="ode-list"></div>
@@ -934,13 +934,13 @@
         ["IKK_active", 0.017449, "state at t = 0 before stimulation"]
       ],
       odes: [
-        ["A20_mRNA", "k_{10} NFkB - k_6 A20\\_mRNA", "v10 - v6"],
-        ["A20", "k_8 A20\\_mRNA - k_3 A20", "v8 - v3"],
-        ["IkBa", "k_9 IkBa\\_mRNA - k_4 IkBa - (k_1 IkBa NFkB - k_2 NFkB\\_IkBa)", "v9 - v4 - v1"],
-        ["IkBa_mRNA", "k_{11} NFkB - k_7 IkBa\\_mRNA", "v11 - v7"],
-        ["NFkB_IkBa", "k_1 IkBa NFkB - k_2 NFkB\\_IkBa - k_5 NFkB\\_IkBa IKK\\_active", "v1 - v5"],
-        ["NFkB", "-(k_1 IkBa NFkB - k_2 NFkB\\_IkBa) + k_5 NFkB\\_IkBa IKK\\_active", "-v1 + v5"],
-        ["IKK_active", "\\frac{k_{14}}{k_{14} + A20} - k_{15} IKK\\_active + s k_{13} e^{-A20}", "v14 - v15 + v13"]
+        ["A20_mRNA", "k_{10} . NFkB - k_6 . A20\_mRNA", "v10 - v6"],
+        ["A20", "k_8 . A20\_mRNA - k_3 . A20", "v8 - v3"],
+        ["IkBa", "k_9 . IkBa \_mRNA - k_4 . IkBa - (k_1 IkBa . NFkB - k_2 . NFkB \_IkBa)", "v9 - v4 - v1"],
+        ["IkBa_mRNA", "k_{11} . NFkB - k_7 . IkBa \_mRNA", "v11 - v7"],
+        ["NFkB_IkBa", "k_1 . IkBa . NFkB - k_2 . NFkB \_IkBa - k_5 . NFkB \_IkBa . IKK \_active", "v1 - v5"],
+        ["NFkB", "-(k_1 . IkBa . NFkB - k_2 . NFkB \_IkBa) + k_5 . NFkB \_IkBa . IKK \_active", "-v1 + v5"],
+        ["IKK_active", "\\frac{k_{14}}{k_{14} + A20} - k_{15} . IKK \_active + stimulus . k_{13} . e^{-A20}", "v14 - v15 + v13"]
       ],
       matrices: {
         offLate: [
@@ -1079,7 +1079,7 @@
     function renderMatrix() {
       const m = matrix();
       const other = comparisonMatrix();
-      const header = `<tr><th>affected \\ regulator</th>${state.order.map(l => `<th>${l}</th>`).join("")}</tr>`;
+      const header = `<tr><th>target (↓) \\ source (→)</th>${state.order.map(l => `<th>${l}</th>`).join("")}</tr>`;
       const body = state.order.map(rowLabel => {
         const r = labelIndex(rowLabel);
         const cells = state.order.map(colLabel => {
