@@ -390,6 +390,8 @@
     .cell.pos { background: var(--green-soft); color: #1d7141; border-color: #93caa2; }
     .cell.neg { background: var(--purple-soft); color: var(--purple); border-color: #bfb3da; }
     .cell.zero { color: #aaa; background: #f8f8f5; }
+    .matrix td.diff-cell { background: #fff7bd; box-shadow: inset 0 0 0 2px rgba(182,169,73,.58); }
+    .matrix td.diff-cell .cell { border-color: var(--gold-dark); }
 
     .ode-list {
       display: grid;
@@ -469,10 +471,19 @@
     .edge.dim { opacity: .12; }
     .edge.highlight-hit { opacity: 1; stroke-width: 3.3; filter: drop-shadow(0 1px 2px rgba(0,0,0,.24)); }
     .edge.highlight-miss { opacity: .12; filter: grayscale(.7); }
+    .edge.diff-gain { color: var(--gold-dark); stroke: var(--gold-dark); stroke-width: 3.4; opacity: 1; marker-end: url(#arrowDiff); }
+    .edge.diff-loss { color: var(--gold-dark); stroke: var(--gold-dark); stroke-width: 3.1; stroke-dasharray: 8 7; opacity: .95; marker-end: url(#arrowDiff); }
+    .edge.diff-flip { stroke-dasharray: 1 7; stroke-width: 3.3; opacity: 1; }
     .node.highlight-hit rect { stroke-width: 2.7; stroke: #111; }
     .node.highlight-hit { opacity: 1; }
     .node.highlight-miss { opacity: .22; filter: grayscale(.75); }
     .loop-card svg.has-highlight { background: linear-gradient(180deg, #fffef8, #f9f7e7); }
+    .diff-legend { display: none; gap: 12px; flex-wrap: wrap; align-items: center; margin-top: 10px; color: var(--muted); font-size: 12px; }
+    .diff-legend.visible { display: flex; }
+    .legend-line { width: 34px; height: 0; border-top: 3px solid var(--gold-dark); display: inline-block; }
+    .legend-line.loss { border-top-style: dashed; }
+    .legend-line.flip { border-top-style: dotted; border-color: var(--green); }
+    .legend-cell { width: 20px; height: 18px; border-radius: 5px; border: 1px solid var(--gold-dark); background: #fff7bd; display: inline-block; }
 
     .loop-grid {
       display: grid;
@@ -764,6 +775,7 @@
                 <button class="btn" data-zoom-target="graph" data-zoom="out">−</button>
                 <button class="btn" data-zoom-target="graph" data-zoom="in">+</button>
                 <button class="btn" data-zoom-target="graph" data-zoom="reset">Reset view</button>
+                <label class="pill"><input type="checkbox" class="compareToggle" /> highlight TR changes</label>
                 <label class="pill"><input type="checkbox" id="graphEdit" /> edit graph</label>
                 <span class="export-controls" aria-label="Export interaction graph">
                   <button class="export-btn" data-export-target="graph" data-export-format="svg">SVG</button>
@@ -773,6 +785,11 @@
               </div>
             </div>
             <div class="viz" id="graphCanvas"></div>
+            <div class="diff-legend" id="graphDiffLegend">
+              <span class="legend-item"><span class="legend-line"></span> gained in selected TR</span>
+              <span class="legend-item"><span class="legend-line loss"></span> absent in selected TR</span>
+              <span class="legend-item"><span class="legend-line flip"></span> sign changed</span>
+            </div>
           </div>
         </div>
 
@@ -785,8 +802,12 @@
             <div class="toolbar">
               <button class="btn" id="sortByLoops">Sort by loop count</button>
               <button class="btn" id="sortByName">Sort A-Z</button>
+              <label class="pill"><input type="checkbox" class="compareToggle" /> highlight TR changes</label>
             </div>
             <div id="matrixWrap" class="matrix-wrap"></div>
+            <div class="diff-legend" id="matrixDiffLegend">
+              <span class="legend-item"><span class="legend-cell"></span> different between TR = 0 and TR = 1</span>
+            </div>
           </div>
         </div>
       </section>
@@ -1057,28 +1078,32 @@
 
     function renderMatrix() {
       const m = matrix();
+      const other = comparisonMatrix();
       const header = `<tr><th>affected \\ regulator</th>${state.order.map(l => `<th>${l}</th>`).join("")}</tr>`;
       const body = state.order.map(rowLabel => {
         const r = labelIndex(rowLabel);
         const cells = state.order.map(colLabel => {
           const c = labelIndex(colLabel);
           const v = m[r][c];
+          const ov = other?.[r]?.[c];
+          const changed = state.compareTR && ov !== undefined && v !== ov;
           const cls = v > 0 ? "pos" : v < 0 ? "neg" : "zero";
-          const sign = v > 0 ? "+" : v < 0 ? "−" : "0";
-          const tip = `${colLabel} ${v > 0 ? "activates" : v < 0 ? "inhibits" : "does not directly affect"} ${rowLabel}`;
-          return `<td data-tip="${tip}"><span class="cell ${cls}">${sign}</span></td>`;
+          const sign = v > 0 ? "+" : v < 0 ? "&minus;" : "0";
+          const baseTip = `${colLabel} ${v > 0 ? "activates" : v < 0 ? "inhibits" : "does not directly affect"} ${rowLabel}`;
+          const tip = changed ? `${baseTip}; changed from ${signLabel(ov)} in ${comparisonStageLabel()} to ${signLabel(v)} in selected TR` : baseTip;
+          return `<td class="${changed ? "diff-cell" : ""}" data-tip="${tip}"><span class="cell ${cls}">${sign}</span></td>`;
         }).join("");
         return `<tr><th class="row-head">${rowLabel}</th>${cells}</tr>`;
       }).join("");
       $("#matrixWrap").innerHTML = `<table class="matrix"><thead>${header}</thead><tbody>${body}</tbody></table>`;
+      $("#matrixDiffLegend")?.classList.toggle("visible", state.compareTR);
       bindTips();
     }
-
     function renderGraph() {
       const focus = $("#focusNode").value;
       const labels = state.order;
       const m = matrix();
-      const edges = getEdges(m).filter(e => e.sign !== 0);
+      const edges = graphEdgesForStage(m);
       const el = $("#graphCanvas");
       const w = Math.max(el.clientWidth || 800, 520);
       const h = 460;
@@ -1096,7 +1121,7 @@
       });
       state.graphPositions[key] = positions;
 
-      const edgeSvg = edges.map(e => edgeSvgPath(e, positions, focus, false, { graph: true })).join("");
+      const edgeSvg = edges.map(e => edgeSvgPath(e, positions, focus, false, { graph: true, diff: e.diff })).join("");
       const nodeSvg = labels.map((label, i) => nodeSvgBlock(label, positions[label], i, focus)).join("");
       el.classList.toggle("editing", state.graphEdit);
       el.innerHTML = svgFrame(w, h, viewportSvg(edgeSvg + nodeSvg, state.graphTransform), "LoopDetect interaction graph");
@@ -1105,6 +1130,7 @@
         positions,
         rerenderPaths: () => updateGraphPaths(el.querySelector("svg"), positions, edges, focus)
       });
+      $("#graphDiffLegend")?.classList.toggle("visible", state.compareTR);
       bindTips();
     }
 
@@ -1318,11 +1344,11 @@
       const self = e.source === e.target;
       const tip = weighted
         ? `${e.source} to ${e.target}: ${e.count} loop paths (${e.pos} positive loops, ${e.neg} negative loops)`
-        : `${e.source} ${e.sign > 0 ? "activates" : "inhibits"} ${e.target}`;
+        : `${e.source} ${e.sign > 0 ? "activates" : "inhibits"} ${e.target}${diffTip(e, options)}`;
       if (self) {
-        return `<path class="edge ${edgeClass(e, active, options)} ${edgeHighlightClass(e, options)}" data-source="${e.source}" data-target="${e.target}" data-sign="${e.sign}" onpointerdown="handleLoopEdgePointer(event, '${e.source}', '${e.target}')" onclick="handleLoopEdgePointer(event, '${e.source}', '${e.target}')" data-tip="${tip}" d="${edgePathD(e, positions, options)}" />`;
+        return `<path class="edge ${edgeClass(e, active, options)} ${diffEdgeClass(options)} ${edgeHighlightClass(e, options)}" data-source="${e.source}" data-target="${e.target}" data-sign="${e.sign}" onpointerdown="handleLoopEdgePointer(event, '${e.source}', '${e.target}')" onclick="handleLoopEdgePointer(event, '${e.source}', '${e.target}')" data-tip="${tip}" d="${edgePathD(e, positions, options)}" />`;
       }
-      return `<path class="edge ${edgeClass(e, active, options)} ${edgeHighlightClass(e, options)}" data-source="${e.source}" data-target="${e.target}" data-sign="${e.sign}" onpointerdown="handleLoopEdgePointer(event, '${e.source}', '${e.target}')" onclick="handleLoopEdgePointer(event, '${e.source}', '${e.target}')" data-tip="${tip}" d="${edgePathD(e, positions, options)}" />`;
+      return `<path class="edge ${edgeClass(e, active, options)} ${diffEdgeClass(options)} ${edgeHighlightClass(e, options)}" data-source="${e.source}" data-target="${e.target}" data-sign="${e.sign}" onpointerdown="handleLoopEdgePointer(event, '${e.source}', '${e.target}')" onclick="handleLoopEdgePointer(event, '${e.source}', '${e.target}')" data-tip="${tip}" d="${edgePathD(e, positions, options)}" />`;
     }
 
     function edgePathD(e, positions, options = {}) {
@@ -1359,14 +1385,65 @@
     function edgeClass(e, active, options = {}) {
       const markerClass = e.sign > 0 ? "pos" : "neg";
       const loopClass = options.loopSign ? (options.loopSign > 0 ? "loop-positive" : "loop-negative") : "";
-      return `${markerClass} ${loopClass} ${active ? "" : "dim"}`;
+      const focusClass = active || options.diff ? "" : "dim";
+      return `${markerClass} ${loopClass} ${focusClass}`;
     }
 
+    function diffEdgeClass(options = {}) {
+      return options.diff ? `diff-${options.diff}` : "";
+    }
     function edgeHighlightClass(edge, options = {}) {
       if (options.graph) return graphEdgeHighlightClass(edge);
       return loopHighlightClass(edge);
     }
 
+    function comparisonStage() {
+      return state.stage === "onLate" ? "offLate" : "onLate";
+    }
+
+    function comparisonStageLabel() {
+      return comparisonStage() === "onLate" ? "TR = 1" : "TR = 0";
+    }
+
+    function selectedStageLabel() {
+      return state.stage === "onLate" ? "TR = 1" : "TR = 0";
+    }
+
+    function comparisonMatrix() {
+      return data.matrices[comparisonStage()];
+    }
+
+    function signLabel(value) {
+      return value > 0 ? "positive" : value < 0 ? "negative" : "zero";
+    }
+
+    function edgeKey(edge) {
+      return `${edge.source}|||${edge.target}`;
+    }
+
+    function graphEdgesForStage(m) {
+      const current = getEdges(m).filter(e => e.sign !== 0);
+      if (!state.compareTR) return current;
+      const other = getEdges(comparisonMatrix()).filter(e => e.sign !== 0);
+      const currentMap = new Map(current.map(e => [edgeKey(e), e]));
+      const otherMap = new Map(other.map(e => [edgeKey(e), e]));
+      const keys = [...new Set([...currentMap.keys(), ...otherMap.keys()])];
+      return keys.map(key => {
+        const edge = currentMap.get(key);
+        const previous = otherMap.get(key);
+        if (edge && !previous) return { ...edge, diff: "gain" };
+        if (!edge && previous) return { ...previous, diff: "loss" };
+        if (edge.sign !== previous.sign) return { ...edge, diff: "flip" };
+        return edge;
+      });
+    }
+
+    function diffTip(edge, options = {}) {
+      if (!options.diff) return "";
+      if (options.diff === "loss") return `; absent in selected TR compared with ${comparisonStageLabel()}`;
+      if (options.diff === "flip") return `; changed sign between ${comparisonStageLabel()} and ${selectedStageLabel()}`;
+      return `; gained compared with ${comparisonStageLabel()}`;
+    }
     function hasGraphHighlight() {
       return state.selectedGraphNodes.size > 0;
     }
@@ -1760,6 +1837,12 @@
 
     function bindEvents() {
       $("#stageSelect").addEventListener("change", e => { state.stage = e.target.value; renderMatrix(); renderGraph(); });
+      $$(".compareToggle").forEach(toggle => toggle.addEventListener("change", e => {
+        state.compareTR = e.target.checked;
+        $$(".compareToggle").forEach(peer => { peer.checked = state.compareTR; });
+        renderMatrix();
+        renderGraph();
+      }));
       $("#focusNode").addEventListener("change", renderGraph);
       $("#graphEdit").addEventListener("change", e => { state.graphEdit = e.target.checked; renderGraph(); });
       $("#loopEdit").addEventListener("change", e => { state.loopEdit = e.target.checked; if (state.loopView === "network") renderLoops(); });
